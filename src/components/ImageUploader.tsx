@@ -3,6 +3,8 @@ import { ChangeEvent, FormEvent, useState } from "react";
 function ImageUploader() {
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState('');
+  const [uploadedFileUrl, setUploadedFileUrl] = useState('')
+  const [fileUrl, setFileurl] = useState('')
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files;
@@ -15,6 +17,7 @@ function ImageUploader() {
     const uploadedFile: File = fileList[0];
     setFile(uploadedFile);
     setFileName(uploadedFile.name);
+    setFileurl(URL.createObjectURL(uploadedFile))
   }
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -24,16 +27,16 @@ function ImageUploader() {
     }
 
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('fileName', fileName);
+    formData.append('file', file, fileName);
     
     try {
-      const response = await fetch('http://localhost:3000/upload', {
+      const response = await fetch('http://127.0.0.1:5000/api/v1/upload', {
         method: 'POST',
         body: formData,
       });
-
-      console.log(response);
+      const data = await response.json();
+      setUploadedFileUrl(`http://127.0.0.1:5000${data.image_url}`);
+      console.log(uploadedFileUrl);
     } catch (error) {
       console.error('Error uploading image:', error);
     }
@@ -47,6 +50,12 @@ function ImageUploader() {
         <br />
         <button type="submit">Upload Image</button>
       </form>
+
+      <div>
+      {fileUrl && (
+        <img src={fileUrl} alt="Uploaded" />
+      )}
+      </div>
     </>
   );
 }
