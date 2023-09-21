@@ -86,6 +86,7 @@ function ImageUploader() {
           <select className="py-3 px-10" name="filters" id="filters" defaultValue={'default'} disabled={!fileUrl} onChange={handleOnChangeFilter}>
             <option value="default">Filtros</option>
             <option value="negative">Negativo</option>
+            <option value="logarithm">Logaritmo</option>
           </select>
         </div>
 
