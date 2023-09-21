@@ -87,6 +87,9 @@ function ImageUploader() {
             <option value="default">Filtros</option>
             <option value="negative">Negativo</option>
             <option value="logarithm">Logaritmo</option>
+            <option value="inverse-logarithm">Logaritmo inverso</option>
+            <option value="power">Potência</option>
+            <option value="root">Raíz</option>
           </select>
         </div>
 
