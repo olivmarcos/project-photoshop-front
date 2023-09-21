@@ -3,7 +3,9 @@ import Editor from "./pages/Editor"
 function App() {
   return (
     <>
-    <Editor></Editor>
+    <div className="p-6">
+      <Editor></Editor>
+    </div>
     </>
   )
 }
