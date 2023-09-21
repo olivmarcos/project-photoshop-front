@@ -1,4 +1,4 @@
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, FormEvent, useRef, useState } from "react";
 
 const BASE_URL = 'http://127.0.0.1:5000/api/v1';
 
@@ -7,6 +7,8 @@ function ImageUploader() {
   const [fileName, setFileName] = useState('');
   const [alteredFileUrl, setAlteredFileUrl] = useState('');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [gamma, setGamma] = useState(1);
+  const [filterToApply, setFilterToApply] = useState('');
 
   const handleOnClick = () => {
     if (!fileInputRef.current) {
@@ -54,6 +56,12 @@ function ImageUploader() {
     if (!filterToApply) {
       return;
     }
+    setFilterToApply(filterToApply);
+  }
+
+  const handleOnSubmitForm = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
     const alteredFileName = await applyFilter(filterToApply);
     setAlteredFileUrl(`${BASE_URL}/altered/${alteredFileName}`);
   }
@@ -61,7 +69,8 @@ function ImageUploader() {
   const applyFilter = async (filterToApply: string) => {
     const body = {
       filterToApply,
-      fileName
+      fileName,
+      gamma
     }
 
     try {
@@ -82,16 +91,39 @@ function ImageUploader() {
   return (
     <>
       <div className="">
-        <div className="flex gap-4">
-          <select className="py-3 px-10" name="filters" id="filters" defaultValue={'default'} disabled={!fileUrl} onChange={handleOnChangeFilter}>
-            <option value="default">Filtros</option>
-            <option value="negative">Negativo</option>
-            <option value="logarithm">Logaritmo</option>
-            <option value="inverse-logarithm">Logaritmo inverso</option>
-            <option value="power">Potência</option>
-            <option value="root">Raíz</option>
-          </select>
-        </div>
+        <form action="" className="flex flex-col gap-4" onSubmit={handleOnSubmitForm}>
+          <div className="flex gap-4">
+            <select className="py-3 px-10" name="filters" id="filters" defaultValue={'default'} disabled={!fileUrl} onChange={handleOnChangeFilter}>
+              <option value="default">Filtros</option>
+              <option value="negative">Negativo</option>
+              <option value="logarithm">Logaritmo</option>
+              <option value="inverse-logarithm">Logaritmo inverso</option>
+              <option value="power">Potência</option>
+              <option value="root">Raíz</option>
+            </select>
+          </div>
+
+          <input
+            className="border border-solid border-red-500 w-16 px-2 py-1"
+            id="number"
+            value={gamma}
+            onChange={e => setGamma(parseInt(e.target.value))}
+            disabled={!fileUrl}
+            type="number"
+            min={1}
+            max={200}
+          />
+
+          <div>
+            <button
+              className="bg-black text-white py-2 px-4 rounded-md"
+              type="submit"
+              disabled={!fileUrl} 
+              >
+              Apply filter
+            </button>
+          </div>
+        </form>
 
         <div className="flex items-center justify-center gap-4">
           <div className="p-4 shadow-2xl w-[500px] h-[600px] flex items-center justify-center">
