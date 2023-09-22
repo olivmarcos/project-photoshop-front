@@ -90,10 +90,10 @@ function ImageUploader() {
 
   return (
     <>
-      <div className="">
-        <form action="" className="flex flex-col gap-4" onSubmit={handleOnSubmitForm}>
+      <div className="flex flex-col items-center justify-center">
+        <form action="" className="flex flex-col gap-4 bg-white px-6 py-4 rounded-md mb-8 shadow-xl" onSubmit={handleOnSubmitForm}>
           <div className="flex gap-4">
-            <select className="py-3 px-10" name="filters" id="filters" defaultValue={'default'} disabled={!fileUrl} onChange={handleOnChangeFilter}>
+            <select className="py-3 px-4 border border-solid border-black rounded-lg" name="filters" id="filters" defaultValue={'default'} disabled={!fileUrl} onChange={handleOnChangeFilter}>
               <option value="default">Filtros</option>
               <option value="negative">Negativo</option>
               <option value="logarithm">Logaritmo</option>
@@ -104,25 +104,27 @@ function ImageUploader() {
               <option value="rotation-counterclockwise-ninety-degree">Rotação 90º anti-horário</option>
               <option value="rotation-one-hundred-eighty">Rotação 180º</option>
             </select>
+
+            <div className="flex items-center justify-center gap-4 w-40">
+              <input
+                className="border border-solid border-red-500 w-full"
+                id="number"
+                value={gamma}
+                onChange={e => setGamma(parseInt(e.target.value))}
+                disabled={!fileUrl}
+                type="range"
+                min={1}
+                max={200}
+              />
+              <p className="font-bold">{gamma}</p>
+            </div>
           </div>
-
-          <input
-            className="border border-solid border-red-500 w-16 px-2 py-1"
-            id="number"
-            value={gamma}
-            onChange={e => setGamma(parseInt(e.target.value))}
-            disabled={!fileUrl}
-            type="number"
-            min={1}
-            max={200}
-          />
-
           <div>
             <button
               className="bg-black text-white py-2 px-4 rounded-md"
               type="submit"
-              disabled={!fileUrl} 
-              >
+              disabled={!fileUrl}
+            >
               Apply filter
             </button>
           </div>
@@ -131,7 +133,7 @@ function ImageUploader() {
         <div className="flex items-center justify-center gap-4">
           <div className="p-4 shadow-2xl w-[500px] h-[600px] flex items-center justify-center">
             {!fileUrl && (
-              <button className="py-3 px-2 bg-black text-white rounded-md" onClick={handleOnClick}>Selecione uma imagem</button>
+              <button className="py-3 px-3 bg-black text-white rounded-md" onClick={handleOnClick}>Selecione uma imagem</button>
             )}
             {fileUrl && (
               <img className="w-full h-full" src={fileUrl} alt="originalImage" />
