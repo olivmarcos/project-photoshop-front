@@ -101,8 +101,10 @@ function ImageUploader() {
               <option value="power">Potência</option>
               <option value="root">Raíz</option>
               <option value="rotation-ninety-degree">Rotação 90º horário</option>
-              <option value="rotation-counterclockwise-ninety-degree">Rotação 90º anti-horário</option>
-              <option value="rotation-one-hundred-eighty">Rotação 180º</option>
+              <option value="rotation-counterclockwise-ninety-degree">Rotação 90° anti-horário</option>
+              <option value="rotation-one-hundred-eighty">Rotação 180°</option>
+              <option value="expansion">Expansão</option>
+              <option value="compression">Compressão</option>
             </select>
           </div>
 
