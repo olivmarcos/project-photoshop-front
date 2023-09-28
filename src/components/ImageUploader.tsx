@@ -9,6 +9,8 @@ function ImageUploader() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [gamma, setGamma] = useState(1);
   const [filterToApply, setFilterToApply] = useState('');
+  const [aValue, setAValue] = useState(0);
+  const [bValue, setBValue] = useState(0);
 
   const handleOnClick = () => {
     if (!fileInputRef.current) {
@@ -66,11 +68,29 @@ function ImageUploader() {
     setAlteredFileUrl(`${BASE_URL}/altered/${alteredFileName}`);
   }
 
+  const handleAValue = async (event: ChangeEvent<HTMLInputElement>) => {
+    const inputedAValue = event.target.value;
+    if (!inputedAValue) {
+      return;
+    }
+    setAValue(parseInt(inputedAValue));
+  }
+
+  const handleBValue = async (event: ChangeEvent<HTMLInputElement>) => {
+    const inputedBValue = event.target.value;
+    if (!inputedBValue) {
+      return;
+    }
+    setBValue(parseInt(inputedBValue));
+  }
+
   const applyFilter = async (filterToApply: string) => {
     const body = {
       filterToApply,
       fileName,
-      gamma
+      gamma,
+      aValue,
+      bValue
     }
 
     try {
@@ -90,10 +110,17 @@ function ImageUploader() {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center">
-        <form action="" className="flex flex-col gap-4 bg-white px-6 py-4 rounded-md mb-8 shadow-xl" onSubmit={handleOnSubmitForm}>
-          <div className="flex gap-4">
-            <select className="py-3 px-4 border border-solid border-black rounded-lg" name="filters" id="filters" defaultValue={'default'} disabled={!fileUrl} onChange={handleOnChangeFilter}>
+      <div className="flex gap-4 h-screen">
+        <form action="" className=" bg-white px-6 py-6 rounded-md mb-8 shadow-xl h-5/6" onSubmit={handleOnSubmitForm}>
+          <div className="flex flex-col gap-4 mb-6">
+            <select
+              className="py-3 px-4 border border-solid border-black rounded-lg"
+              name="filters"
+              id="filters"
+              defaultValue={'default'}
+              disabled={!fileUrl}
+              onChange={handleOnChangeFilter}
+            >
               <option value="default">Filtros</option>
               <option value="negative">Negativo</option>
               <option value="logarithm">Logaritmo</option>
@@ -103,12 +130,15 @@ function ImageUploader() {
               <option value="rotation-ninety-degree">Rotação 90º horário</option>
               <option value="rotation-counterclockwise-ninety-degree">Rotação 90º anti-horário</option>
               <option value="rotation-one-hundred-eighty">Rotação 180º</option>
+              <option value="expansion">Expansão</option>
+              <option value="compression">Compressão</option>
             </select>
 
             <div className="flex items-center justify-center gap-4 w-40">
+              <label htmlFor="gamma">Gamma</label>
               <input
                 className="border border-solid border-red-500 w-full"
-                id="number"
+                id="gamma"
                 value={gamma}
                 onChange={e => setGamma(parseInt(e.target.value))}
                 disabled={!fileUrl}
@@ -118,6 +148,32 @@ function ImageUploader() {
               />
               <p className="font-bold">{gamma}</p>
             </div>
+
+            {['expansion', 'compression'].includes(filterToApply) && (
+              <div>
+                <hr className="border border-solid border-gray-400 mb-6" />
+                <div className="flex flex-col gap-2">
+                  <input
+                    className="border border-solid border-black rounded-lg px-2"
+                    type="number"
+                    name="a"
+                    id="a"
+                    placeholder="A"
+                    value={aValue}
+                    onChange={handleAValue}
+                  />
+                  <input
+                    className="border border-solid border-black rounded-lg px-2"
+                    type="number"
+                    name="b"
+                    id="b"
+                    placeholder="B"
+                    value={bValue}
+                    onChange={handleBValue}
+                  />
+                </div>
+              </div>
+            )}
           </div>
           <div>
             <button
@@ -130,7 +186,7 @@ function ImageUploader() {
           </div>
         </form>
 
-        <div className="flex items-center justify-center gap-4">
+        <div className="flex items-center justify-center gap-4 h-5/6">
           <div className="p-4 shadow-2xl w-[500px] h-[600px] flex items-center justify-center">
             {!fileUrl && (
               <button className="py-3 px-3 bg-black text-white rounded-md" onClick={handleOnClick}>Selecione uma imagem</button>
