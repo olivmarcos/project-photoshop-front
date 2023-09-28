@@ -4,9 +4,12 @@ const BASE_URL = 'http://127.0.0.1:5000/api/v1';
 
 function ImageUploader() {
   const [fileUrl, setFileurl] = useState('');
+  const [secondFileUrl, setSecondFileUrl] = useState('');
   const [fileName, setFileName] = useState('');
+  const [secondFileName, setSecondFileName] = useState('');
   const [alteredFileUrl, setAlteredFileUrl] = useState('');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const secondFileInputRef = useRef<HTMLInputElement | null>(null);
   const [gamma, setGamma] = useState(1);
   const [filterToApply, setFilterToApply] = useState('');
   const [aValue, setAValue] = useState(0);
@@ -17,6 +20,13 @@ function ImageUploader() {
       return;
     }
     fileInputRef?.current.click();
+  }
+
+  const handleOnClickSecondFile = () => {
+    if (!secondFileInputRef.current) {
+      return;
+    }
+    secondFileInputRef?.current.click();
   }
 
   const handleSelectedFile = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -31,6 +41,20 @@ function ImageUploader() {
     setFileName(uploadedFileName);
     setFileurl(`${BASE_URL}/uploads/${uploadedFileName}`);
   }
+
+  const handleSelectedSecondFile = async (e: ChangeEvent<HTMLInputElement>) => {
+    const fileList = e.target.files;
+
+    if (!fileList) {
+      return;
+    }
+
+    const selectedFile: File = fileList[0];
+    const uploadedFileName = await uploadFile(selectedFile);
+    setSecondFileName(uploadedFileName);
+    setSecondFileUrl(`${BASE_URL}/uploads/${uploadedFileName}`);
+  }
+
 
   const uploadFile = async (file: File) => {
     if (!file) {
@@ -64,6 +88,10 @@ function ImageUploader() {
   const handleOnSubmitForm = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    if (!filterToApply) {
+      return;
+    }
+
     const alteredFileName = await applyFilter(filterToApply);
     setAlteredFileUrl(`${BASE_URL}/altered/${alteredFileName}`);
   }
@@ -88,6 +116,7 @@ function ImageUploader() {
     const body = {
       filterToApply,
       fileName,
+      secondFileName,
       gamma,
       aValue,
       bValue
@@ -121,7 +150,7 @@ function ImageUploader() {
               disabled={!fileUrl}
               onChange={handleOnChangeFilter}
             >
-              <option value="default">Filtros</option>
+              <option value="default" disabled hidden>Filtros</option>
               <option value="negative">Negativo</option>
               <option value="logarithm">Logaritmo</option>
               <option value="inverse-logarithm">Logaritmo inverso</option>
@@ -132,6 +161,7 @@ function ImageUploader() {
               <option value="rotation-one-hundred-eighty">Rotação 180º</option>
               <option value="expansion">Expansão</option>
               <option value="compression">Compressão</option>
+              <option value="add-two-images">Soma de 2 imagens</option>
             </select>
 
             <div className="flex items-center justify-center gap-4 w-40">
@@ -191,8 +221,19 @@ function ImageUploader() {
             {!fileUrl && (
               <button className="py-3 px-3 bg-black text-white rounded-md" onClick={handleOnClick}>Selecione uma imagem</button>
             )}
+
             {fileUrl && (
               <img className="w-full h-full" src={fileUrl} alt="originalImage" />
+            )}
+          </div>
+
+          <div className="p-4 shadow-2xl w-[500px] h-[600px] flex items-center justify-center">
+            {!secondFileUrl && (
+              <button className="py-3 px-3 bg-black text-white rounded-md" onClick={handleOnClickSecondFile}>Selecione uma imagem</button>
+            )}
+
+            {secondFileUrl && (
+              <img className="w-full h-full" src={secondFileUrl} alt="originalImage" />
             )}
           </div>
 
@@ -205,6 +246,7 @@ function ImageUploader() {
       </div>
 
       <input ref={fileInputRef} type="file" accept=".jpg, .jpeg, .png, .bmp" onChange={handleSelectedFile} style={{ display: "none" }} />
+      <input ref={secondFileInputRef} type="file" accept=".jpg, .jpeg, .png, .bmp" onChange={handleSelectedSecondFile} style={{ display: "none" }} />
     </>
   );
 }
