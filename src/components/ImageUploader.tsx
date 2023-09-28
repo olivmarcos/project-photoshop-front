@@ -227,15 +227,17 @@ function ImageUploader() {
             )}
           </div>
 
-          <div className="p-4 shadow-2xl w-[500px] h-[600px] flex items-center justify-center">
-            {!secondFileUrl && (
-              <button className="py-3 px-3 bg-black text-white rounded-md" onClick={handleOnClickSecondFile}>Selecione uma imagem</button>
-            )}
+          {filterToApply === 'add-two-images' && (
+            <div className="p-4 shadow-2xl w-[500px] h-[600px] flex items-center justify-center">
+              {!secondFileUrl && (
+                <button className="py-3 px-3 bg-black text-white rounded-md" onClick={handleOnClickSecondFile}>Selecione uma imagem</button>
+              )}
 
-            {secondFileUrl && (
-              <img className="w-full h-full" src={secondFileUrl} alt="originalImage" />
-            )}
-          </div>
+              {secondFileUrl && (
+                <img className="w-full h-full" src={secondFileUrl} alt="originalImage" />
+              )}
+            </div>
+          )}
 
           <div className="w-[500px] h-[600px] p-4 shadow-2xl">
             {alteredFileUrl && (
