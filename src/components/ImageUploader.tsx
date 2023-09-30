@@ -14,6 +14,7 @@ function ImageUploader() {
   const [filterToApply, setFilterToApply] = useState('');
   const [aValue, setAValue] = useState(0);
   const [bValue, setBValue] = useState(0);
+  const [dimension, setDimension] = useState(0);
 
   const handleOnClick = () => {
     if (!fileInputRef.current) {
@@ -112,6 +113,14 @@ function ImageUploader() {
     setBValue(parseInt(inputedBValue));
   }
 
+  const handleOnChangeDimension = async (event: ChangeEvent<HTMLSelectElement>) => {
+    const selectedDimension = event.target.value;
+    if (!selectedDimension) {
+      return;
+    }
+    setDimension(parseInt(selectedDimension));
+  }
+
   const applyFilter = async (filterToApply: string) => {
     const body = {
       filterToApply,
@@ -119,7 +128,8 @@ function ImageUploader() {
       secondFileName,
       gamma,
       aValue,
-      bValue
+      bValue,
+      dimension
     }
 
     try {
@@ -162,6 +172,7 @@ function ImageUploader() {
               <option value="expansion">Expansão</option>
               <option value="compression">Compressão</option>
               <option value="add-two-images">Soma de 2 imagens</option>
+              <option value="nearest-neighbor-resampling">Ampliação por replicação de pixels</option>
             </select>
 
             <div className="flex items-center justify-center gap-4 w-40">
@@ -204,6 +215,21 @@ function ImageUploader() {
                 </div>
               </div>
             )}
+
+            {(filterToApply === 'nearest-neighbor-resampling') && (
+              <select
+                name="dimensions"
+                id="dimensions"
+                className="py-3 px-4 border border-solid border-black rounded-lg"
+                defaultValue={'none'}
+                onChange={handleOnChangeDimension}
+              >
+                <option value="none" disabled hidden>Tamanhos</option>
+                <option value="2">512x512</option>
+                <option value="3">1024x1024</option>
+              </select>
+            )}
+
           </div>
           <div>
             <button
