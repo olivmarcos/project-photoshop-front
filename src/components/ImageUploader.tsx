@@ -14,7 +14,7 @@ function ImageUploader() {
   const [filterToApply, setFilterToApply] = useState('');
   const [aValue, setAValue] = useState(0);
   const [bValue, setBValue] = useState(0);
-  const [dimension, setDimension] = useState(0);
+  const [scaleFactor, setScaleFactor] = useState(0);
 
   const handleOnClick = () => {
     if (!fileInputRef.current) {
@@ -113,12 +113,12 @@ function ImageUploader() {
     setBValue(parseInt(inputedBValue));
   }
 
-  const handleOnChangeDimension = async (event: ChangeEvent<HTMLSelectElement>) => {
-    const selectedDimension = event.target.value;
-    if (!selectedDimension) {
+  const handleOnChangeScaleFactor = async (event: ChangeEvent<HTMLSelectElement>) => {
+    const selectedScale = event.target.value;
+    if (!selectedScale) {
       return;
     }
-    setDimension(parseInt(selectedDimension));
+    setScaleFactor(parseInt(selectedScale));
   }
 
   const applyFilter = async (filterToApply: string) => {
@@ -129,7 +129,7 @@ function ImageUploader() {
       gamma,
       aValue,
       bValue,
-      dimension
+      scaleFactor
     }
 
     try {
@@ -172,7 +172,8 @@ function ImageUploader() {
               <option value="expansion">Expansão</option>
               <option value="compression">Compressão</option>
               <option value="add-two-images">Soma de 2 imagens</option>
-              <option value="nearest-neighbor-resampling">Ampliação por replicação de pixels</option>
+              <option value="nearest-neighbor-resampling">Ampliação com replicação de pixels</option>
+              <option value="bilinear-interpolation-resampling">Ampliação com interpolação bilinear</option>
             </select>
 
             <div className="flex items-center justify-center gap-4 w-40">
@@ -216,17 +217,17 @@ function ImageUploader() {
               </div>
             )}
 
-            {(filterToApply === 'nearest-neighbor-resampling') && (
+            {['nearest-neighbor-resampling', 'bilinear-interpolation-resampling'].includes(filterToApply) && (
               <select
-                name="dimensions"
-                id="dimensions"
+                name="scales"
+                id="scales"
                 className="py-3 px-4 border border-solid border-black rounded-lg"
                 defaultValue={'none'}
-                onChange={handleOnChangeDimension}
+                onChange={handleOnChangeScaleFactor}
               >
-                <option value="none" disabled hidden>Tamanhos</option>
+                <option value="none" disabled hidden>Escalas</option>
                 <option value="2">512x512</option>
-                <option value="3">1024x1024</option>
+                <option value="4">1024x1024</option>
               </select>
             )}
 
