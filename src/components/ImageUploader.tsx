@@ -1,4 +1,5 @@
 import { ChangeEvent, FormEvent, useRef, useState } from "react";
+import Modal from "./Modal";
 
 const BASE_URL = 'http://127.0.0.1:5000/api/v1';
 
@@ -8,12 +9,41 @@ function ImageUploader() {
   const [fileName, setFileName] = useState('');
   const [secondFileName, setSecondFileName] = useState('');
   const [alteredFileUrl, setAlteredFileUrl] = useState('');
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const secondFileInputRef = useRef<HTMLInputElement | null>(null);
   const [gamma, setGamma] = useState(1);
-  const [filterToApply, setFilterToApply] = useState('');
+  const [filterToApply, setFilterToApply] = useState('default');
   const [aValue, setAValue] = useState(0);
   const [bValue, setBValue] = useState(0);
+  const [scaleFactor, setScaleFactor] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const secondFileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const cleanForm = () => {
+    setFileurl('');
+    setSecondFileUrl('');
+    setFileName('');
+    setSecondFileName('');
+    setAlteredFileUrl('');
+    setGamma(1);
+    setFilterToApply('default');
+    setAValue(0);
+    setBValue(0);
+    setScaleFactor(0);
+    clearInputFiles();
+  }
+
+  const clearInputFiles = () => {
+    const fileInputs = document.querySelectorAll<HTMLInputElement>('input[type="file"]');
+    fileInputs.forEach(file => file.value = '')
+  }
 
   const handleOnClick = () => {
     if (!fileInputRef.current) {
@@ -31,7 +61,6 @@ function ImageUploader() {
 
   const handleSelectedFile = async (e: ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files;
-
     if (!fileList) {
       return;
     }
@@ -112,6 +141,15 @@ function ImageUploader() {
     setBValue(parseInt(inputedBValue));
   }
 
+  const handleOnChangeScaleFactor = async (event: ChangeEvent<HTMLSelectElement>) => {
+    const selectedScale = event.target.value;
+    if (!selectedScale) {
+      return;
+    }
+    console.log(selectedScale)
+    setScaleFactor(parseInt(selectedScale));
+  }
+
   const applyFilter = async (filterToApply: string) => {
     const body = {
       filterToApply,
@@ -119,7 +157,8 @@ function ImageUploader() {
       secondFileName,
       gamma,
       aValue,
-      bValue
+      bValue,
+      scaleFactor
     }
 
     try {
@@ -131,6 +170,9 @@ function ImageUploader() {
         body: JSON.stringify(body)
       });
       const { file_name } = await response.json();
+      if (['nearest-neighbor-resampling', 'bilinear-interpolation-resampling'].includes(filterToApply) && scaleFactor === 4) {
+        openModal();
+      }
       return file_name;
     } catch (error) {
       console.error('Erro applying filter', error);
@@ -139,14 +181,19 @@ function ImageUploader() {
 
   return (
     <>
-      <div className="flex gap-4 h-screen">
-        <form action="" className=" bg-white px-6 py-6 rounded-md mb-8 shadow-xl h-5/6" onSubmit={handleOnSubmitForm}>
+      <div className="w-full flex items-center justify-end pr-10">
+        <div>
+          <span className="font-bold cursor-pointer drop-shadow-lg" onClick={cleanForm}>limpar tudo</span>
+        </div>
+      </div>
+      <div className="grid grid-cols-6 gap-6 h-5/6">
+        <form action="" className="bg-white p-6 flex flex-col justify-between rounded-lg shadow-lg" onSubmit={handleOnSubmitForm}>
           <div className="flex flex-col gap-4 mb-6">
             <select
-              className="py-3 px-4 border border-solid border-black rounded-lg"
+              className="py-3 px-4 border border-solid border-rose-400 rounded-lg"
               name="filters"
               id="filters"
-              defaultValue={'default'}
+              value={filterToApply}
               disabled={!fileUrl}
               onChange={handleOnChangeFilter}
             >
@@ -162,22 +209,26 @@ function ImageUploader() {
               <option value="expansion">Expansão</option>
               <option value="compression">Compressão</option>
               <option value="add-two-images">Soma de 2 imagens</option>
+              <option value="nearest-neighbor-resampling">Ampliação com replicação de pixels</option>
+              <option value="bilinear-interpolation-resampling">Ampliação com interpolação bilinear</option>
             </select>
 
-            <div className="flex items-center justify-center gap-4 w-40">
-              <label htmlFor="gamma">Gamma</label>
-              <input
-                className="border border-solid border-red-500 w-full"
-                id="gamma"
-                value={gamma}
-                onChange={e => setGamma(parseInt(e.target.value))}
-                disabled={!fileUrl}
-                type="range"
-                min={1}
-                max={200}
-              />
-              <p className="font-bold">{gamma}</p>
-            </div>
+            {['logarithm', 'inverse-logarithm', 'power', 'root'].includes(filterToApply) && (
+              <div className="flex items-center justify-center gap-4 w-40">
+                <label htmlFor="gamma">Gamma</label>
+                <input
+                  className="border border-solid border-red-500 w-full bg-black"
+                  id="gamma"
+                  value={gamma}
+                  onChange={e => setGamma(parseInt(e.target.value))}
+                  disabled={!fileUrl}
+                  type="range"
+                  min={1}
+                  max={200}
+                />
+                <p className="font-bold">{gamma}</p>
+              </div>
+            )}
 
             {['expansion', 'compression'].includes(filterToApply) && (
               <div>
@@ -204,10 +255,24 @@ function ImageUploader() {
                 </div>
               </div>
             )}
+
+            {['nearest-neighbor-resampling', 'bilinear-interpolation-resampling'].includes(filterToApply) && (
+              <select
+                name="scales"
+                id="scales"
+                className="py-3 px-4 border border-solid border-black rounded-lg"
+                defaultValue={'none'}
+                onChange={handleOnChangeScaleFactor}
+              >
+                <option value="none" disabled hidden>Escalas</option>
+                <option value="2">512x512</option>
+                <option value="4">1024x1024</option>
+              </select>
+            )}
           </div>
-          <div>
+          <div className="w-full flex items-center justify-end">
             <button
-              className="bg-black text-white py-2 px-4 rounded-md"
+              className={`py-2 px-4 rounded-lg text-white ${fileUrl ? 'bg-rose-400' : 'bg-gray-400'}`}
               type="submit"
               disabled={!fileUrl}
             >
@@ -216,39 +281,64 @@ function ImageUploader() {
           </div>
         </form>
 
-        <div className="flex items-center justify-center gap-4 h-5/6">
-          <div className="p-4 shadow-2xl w-[500px] h-[600px] flex items-center justify-center">
+        <div className="flex items-center justify-center gap-4 col-span-5 border-dashed border-2 border-rose-400">
+          <div
+            className={`min-w-[256px] min-h-[256px] flex items-center justify-center border-dashed border border-rose-400 rounded-md ${fileUrl ? 'pointer-events-none p-2' : 'cursor-pointer'}`}
+            onClick={handleOnClick}
+          >
             {!fileUrl && (
-              <button className="py-3 px-3 bg-black text-white rounded-md" onClick={handleOnClick}>Selecione uma imagem</button>
+              <span className="drop-shadow-lg">Selecione uma imagem</span>
             )}
 
             {fileUrl && (
-              <img className="w-full h-full" src={fileUrl} alt="originalImage" />
+              <img src={fileUrl} alt="originalImage" />
             )}
           </div>
 
           {filterToApply === 'add-two-images' && (
-            <div className="p-4 shadow-2xl w-[500px] h-[600px] flex items-center justify-center">
+            <div
+              className={`min-w-[256px] min-h-[256px] flex items-center justify-center border-dashed border border-gray-400 rounded-md ${secondFileUrl ? 'pointer-events-none p-2' : 'cursor-pointer'}`}
+              onClick={handleOnClickSecondFile}
+            >
               {!secondFileUrl && (
-                <button className="py-3 px-3 bg-black text-white rounded-md" onClick={handleOnClickSecondFile}>Selecione uma imagem</button>
+                <span className="drop-shadow-lg">Selecione uma imagem</span>
               )}
 
               {secondFileUrl && (
-                <img className="w-full h-full" src={secondFileUrl} alt="originalImage" />
+                <img src={secondFileUrl} alt="originalImage" />
               )}
             </div>
           )}
 
-          <div className="w-[500px] h-[600px] p-4 shadow-2xl">
-            {alteredFileUrl && (
-              <img className="w-full h-full" src={alteredFileUrl} alt="filteredImage" />
-            )}
-          </div>
+          {alteredFileUrl && scaleFactor !== 4 && (
+            <div className={`min-w-[256px] min-h-[256px] flex items-center justify-center border-dashed border border-gray-400 rounded-md ${alteredFileUrl ? 'p-2' : ''}`}>
+              <img src={alteredFileUrl} alt="filteredImage" />
+            </div>
+          )}
         </div>
       </div>
 
-      <input ref={fileInputRef} type="file" accept=".jpg, .jpeg, .png, .bmp" onChange={handleSelectedFile} style={{ display: "none" }} />
-      <input ref={secondFileInputRef} type="file" accept=".jpg, .jpeg, .png, .bmp" onChange={handleSelectedSecondFile} style={{ display: "none" }} />
+      <input
+        id="originalFile"
+        className="hidden"
+        ref={fileInputRef}
+        type="file"
+        accept=".jpg, .jpeg, .png, .bmp"
+        onChange={handleSelectedFile} />
+
+      <input
+        id="secondOriginalFile"
+        className="hidden"
+        ref={secondFileInputRef}
+        type="file"
+        accept=".jpg, .jpeg, .png, .bmp"
+        onChange={handleSelectedSecondFile} />
+
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
+        <div>
+          <img src={alteredFileUrl} alt="filteredImage" />
+        </div>
+      </Modal>
     </>
   );
 }
