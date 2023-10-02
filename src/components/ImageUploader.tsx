@@ -17,6 +17,7 @@ function ImageUploader() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const secondFileInputRef = useRef<HTMLInputElement | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [histogramFileUrl, setHistogramFileUrl] = useState('');
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -37,6 +38,7 @@ function ImageUploader() {
     setAValue(0);
     setBValue(0);
     setScaleFactor(0);
+    setHistogramFileUrl('');
     clearInputFiles();
   }
 
@@ -146,8 +148,11 @@ function ImageUploader() {
     if (!selectedScale) {
       return;
     }
-    console.log(selectedScale)
     setScaleFactor(parseInt(selectedScale));
+  }
+
+  const handleGeneratedHistogram = (fileName: string) => {
+    setHistogramFileUrl(`${BASE_URL}/histogram/${fileName}`)
   }
 
   const applyFilter = async (filterToApply: string) => {
@@ -179,6 +184,27 @@ function ImageUploader() {
     }
   };
 
+  const generateHistogram = async () => {
+    const body = {
+      fileName
+    }
+
+    try {
+      const response = await fetch(`${BASE_URL}/histogram`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body)
+      })
+      const { data } = await response.json();
+      handleGeneratedHistogram(data.fileName)
+      openModal()
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   return (
     <>
       <div className="w-full flex items-center justify-end pr-10">
@@ -188,7 +214,7 @@ function ImageUploader() {
       </div>
       <div className="grid grid-cols-6 gap-6 h-5/6">
         <form action="" className="bg-white p-6 flex flex-col justify-between rounded-lg shadow-lg" onSubmit={handleOnSubmitForm}>
-          <div className="flex flex-col gap-4 mb-6">
+          <div className="flex flex-col gap-4 h-3/4">
             <select
               className="py-3 px-4 border border-solid border-rose-400 rounded-lg"
               name="filters"
@@ -260,7 +286,7 @@ function ImageUploader() {
               <select
                 name="scales"
                 id="scales"
-                className="py-3 px-4 border border-solid border-black rounded-lg"
+                className="py-3 px-4 border border-solid border-rose-400 rounded-lg"
                 defaultValue={'none'}
                 onChange={handleOnChangeScaleFactor}
               >
@@ -270,6 +296,16 @@ function ImageUploader() {
               </select>
             )}
           </div>
+
+          <button
+            type="button"
+            id="getHistogram"
+            className={`text-rose-400 py-2 rounded-lg border border-solid border-rose-400 hover:bg-rose-400 hover:text-white ${fileUrl ? '' : 'hidden'}`}
+            onClick={generateHistogram}
+          >
+            Obter histograma
+          </button>
+
           <div className="w-full flex items-center justify-end">
             <button
               className={`py-2 px-4 rounded-lg text-white ${fileUrl ? 'bg-rose-400' : 'bg-gray-400'}`}
@@ -335,9 +371,17 @@ function ImageUploader() {
         onChange={handleSelectedSecondFile} />
 
       <Modal isOpen={isModalOpen} onClose={closeModal}>
-        <div>
-          <img src={alteredFileUrl} alt="filteredImage" />
-        </div>
+        {alteredFileUrl && (
+          <div>
+            <img src={alteredFileUrl} alt="filteredImage" />
+          </div>
+        )}
+
+        {histogramFileUrl && (
+          <div>
+            <img src={histogramFileUrl} alt="histogram" />
+          </div>
+        )}
       </Modal>
     </>
   );
