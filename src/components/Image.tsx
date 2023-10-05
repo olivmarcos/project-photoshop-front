@@ -1,10 +1,9 @@
-interface ImageProps {
-  fileUrl: string,
-  altText: string
+import { ImgHTMLAttributes } from "react";
+
+export type ImageProps = ImgHTMLAttributes<HTMLImageElement>
+
+function Image({ ...props }: ImageProps) {
+  return <img { ...props } />
 }
 
-function Image({ fileUrl, altText }: ImageProps) {
-  return <img src={fileUrl} alt={altText} />
-}
-
-export default Image;
+export default Image; 

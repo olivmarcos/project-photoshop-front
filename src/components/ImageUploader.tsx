@@ -20,7 +20,7 @@ function ImageUploader({ fileUrl, handleSelectedFile }: ImageUploaderProps) {
     <>
       <DisplayArea fileUrl={fileUrl} handleOnClick={handleOnClick}>
         {!fileUrl && <span className="drop-shadow-lg">Selecione uma imagem</span>}
-        {fileUrl && <Image fileUrl={fileUrl} altText={'original image'}></Image>}
+        {fileUrl && <Image src={fileUrl} alt={'original image'}></Image>}
 
       </DisplayArea>
 

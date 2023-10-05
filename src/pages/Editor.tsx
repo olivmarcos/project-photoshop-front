@@ -327,7 +327,7 @@ function Editor() {
 
           {alteredFileUrl && scaleFactor !== 4 && (
             <DisplayArea fileUrl={alteredFileUrl}>
-              <Image fileUrl={alteredFileUrl} altText={'altered image'}></Image>
+              <Image src={alteredFileUrl} alt={'altered image'}></Image>
             </DisplayArea>
           )}
         </div>
@@ -342,7 +342,7 @@ function Editor() {
 
         {histogramFileUrl && (
           <div>
-            <Image fileUrl={histogramFileUrl} altText={'image histogram'}></Image>
+            <Image src={histogramFileUrl} alt={'image histogram'}></Image>
           </div>
         )}
       </Modal>
