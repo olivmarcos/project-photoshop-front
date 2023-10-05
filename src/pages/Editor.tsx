@@ -216,6 +216,8 @@ function Editor() {
               <option value="add-two-images">Soma de 2 imagens</option>
               <option value="nearest-neighbor-resampling">Ampliação com replicação de pixels</option>
               <option value="bilinear-interpolation-resampling">Ampliação com interpolação bilinear</option>
+              <option value="average">Média</option>
+              <option value="laplace">Laplace</option>
             </select>
 
             {['logarithm', 'inverse-logarithm', 'power', 'root'].includes(filterToApply) && (
