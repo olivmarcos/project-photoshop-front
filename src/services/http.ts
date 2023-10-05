@@ -25,7 +25,8 @@ const applyFilter = async (
   gamma?: number,
   aValue?: number,
   bValue?: number,
-  scaleFactor?: number
+  scaleFactor?: number,
+  mergePercentage?: number
 ) => {
   const body = {
     filterToApply,
@@ -35,6 +36,7 @@ const applyFilter = async (
     ...(aValue !== undefined && { aValue }),
     ...(bValue !== undefined && { bValue }),
     ...(scaleFactor !== undefined && { scaleFactor }),
+    ...(mergePercentage !== undefined && { mergePercentage }),
   };
 
   try {

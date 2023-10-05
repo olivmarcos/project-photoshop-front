@@ -18,6 +18,7 @@ function Editor() {
   const [filterToApply, setFilterToApply] = useState<string>('default');
   const [scaleFactor, setScaleFactor] = useState<number>(2);
   const [gamma, setGamma] = useState<number>(1);
+  const [mergePercentage, setMergePercentage] = useState<number>(0);
   const [aValue, setAValue] = useState(0);
   const [bValue, setBValue] = useState(0);
 
@@ -30,6 +31,7 @@ function Editor() {
     setSecondFileUrl(null);
     setAlteredFileUrl(null);
     setGamma(1);
+    setMergePercentage(0);
     setFilterToApply('default');
     setAValue(0);
     setBValue(0);
@@ -133,13 +135,14 @@ function Editor() {
     }
 
     const alteredFileUrl = await applyFilter(
-      filterToApply, 
-      firstFileName, 
-      secondFileName, 
-      gamma, 
-      aValue, 
-      bValue, 
-      scaleFactor
+      filterToApply,
+      firstFileName,
+      secondFileName,
+      gamma,
+      aValue,
+      bValue,
+      scaleFactor,
+      mergePercentage
     );
 
     if (!alteredFileUrl) {
@@ -216,19 +219,41 @@ function Editor() {
             </select>
 
             {['logarithm', 'inverse-logarithm', 'power', 'root'].includes(filterToApply) && (
-              <div className="flex items-center justify-center gap-4 w-40">
-                <label htmlFor="gamma">Gamma</label>
-                <input
-                  className="border border-solid border-red-500 w-full bg-black"
-                  id="gamma"
-                  value={gamma}
-                  onChange={e => setGamma(parseInt(e.target.value))}
-                  disabled={!firstFileUrl}
-                  type="range"
-                  min={1}
-                  max={200}
-                />
-                <p className="font-bold">{gamma}</p>
+              <div className="flex flex-col">
+              <label htmlFor="gamma">Gamma</label>
+                <div className="flex items-center justify-center gap-2">
+                  <input
+                    className="border border-solid border-red-500 w-full bg-black"
+                    id="gamma"
+                    value={gamma}
+                    onChange={e => setGamma(parseFloat(e.target.value))}
+                    disabled={!firstFileUrl}
+                    type="range"
+                    step={0.01}
+                    min={0}
+                    max={5}
+                  />
+                  <p className="font-bold">{gamma}</p>
+                </div>
+              </div>
+            )}
+
+            {filterToApply === 'add-two-images' && (
+              <div className="flex flex-col">
+                <label htmlFor="gamma">Porcentagem</label>
+                <div className="flex items-center justify-center gap-2">
+                  <input
+                    className="border border-solid border-red-500 w-full bg-black"
+                    id="gamma"
+                    value={mergePercentage}
+                    onChange={e => setMergePercentage(parseInt(e.target.value))}
+                    disabled={!secondFileUrl}
+                    type="range"
+                    min={0}
+                    max={100}
+                  />
+                  <p className="font-bold">{mergePercentage}%</p>
+                </div>
               </div>
             )}
 
