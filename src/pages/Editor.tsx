@@ -1,9 +1,9 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import ImageUploader from "../components/ImageUploader";
 import { applyFilter, generateHistogram, uploadFile } from "../services/http";
-import DisplayArea from "../components/DisplayArea";
 import Image from "../components/Image";
 import Modal from "../components/Modal";
+import ImageInformation from "../components/ImageInformation";
 
 const BASE_URL = 'http://127.0.0.1:5000/api/v1';
 
@@ -326,9 +326,11 @@ function Editor() {
           )}
 
           {alteredFileUrl && scaleFactor !== 4 && (
-            <DisplayArea fileUrl={alteredFileUrl}>
+            <div className="min-w-[256px] min-h-[256px] p-2 flex items-center justify-center border-dashed border border-rose-400 rounded-md">
+            <ImageInformation>
               <Image src={alteredFileUrl} alt={'altered image'}></Image>
-            </DisplayArea>
+            </ImageInformation>
+            </div>
           )}
         </div>
       </div>
