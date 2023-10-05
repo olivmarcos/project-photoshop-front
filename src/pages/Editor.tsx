@@ -223,7 +223,7 @@ function Editor() {
               <label htmlFor="gamma">Gamma</label>
                 <div className="flex items-center justify-center gap-2">
                   <input
-                    className="border border-solid border-red-500 w-full bg-black"
+                    className="w-full accent-rose-400"
                     id="gamma"
                     value={gamma}
                     onChange={e => setGamma(parseFloat(e.target.value))}
@@ -243,7 +243,7 @@ function Editor() {
                 <label htmlFor="gamma">Porcentagem</label>
                 <div className="flex items-center justify-center gap-2">
                   <input
-                    className="border border-solid border-red-500 w-full bg-black"
+                    className="w-full accent-rose-400"
                     id="gamma"
                     value={mergePercentage}
                     onChange={e => setMergePercentage(parseInt(e.target.value))}
