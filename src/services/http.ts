@@ -21,7 +21,7 @@ const uploadFile = async (file: File) => {
 const applyFilter = async (
   filterToApply: string,
   fileName: string,
-  secondFileName?: string,
+  secondFileName: string | null,
   gamma?: number,
   aValue?: number,
   bValue?: number,

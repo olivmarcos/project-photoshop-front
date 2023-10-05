@@ -1,41 +1,47 @@
-import { ChangeEvent, FormEvent, useState } from "react";
-import ImageUpload from "../components/ImageUpload";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import ImageUploader from "../components/ImageUploader";
 import { applyFilter, generateHistogram, uploadFile } from "../services/http";
 import DisplayArea from "../components/DisplayArea";
 import Image from "../components/Image";
 import Modal from "../components/Modal";
 
+const BASE_URL = 'http://127.0.0.1:5000/api/v1';
+
 function Editor() {
-  const [filterToApply, setFilterToApply] = useState<string>('default');
-  const [originalFile, setOriginalFile] = useState<File | null>(null);
-  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
-  const [auxFileUrl, setAuxFileUrl] = useState<string | null>(null);
+  const [firstFileName, setFirstFileName] = useState<string | null>(null);
+  const [firstFileUrl, setFirstFileUrl] = useState<string | null>(null);
+  const [secondFileName, setSecondFileName] = useState<string | null>(null);
+  const [secondFileUrl, setSecondFileUrl] = useState<string | null>(null);
   const [alteredFileUrl, setAlteredFileUrl] = useState<string | null>(null);
+  const [histogramFileUrl, setHistogramFileUrl] = useState<string | null>(null);
+
+  const [filterToApply, setFilterToApply] = useState<string>('default');
   const [scaleFactor, setScaleFactor] = useState<number>(2);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [gamma, setGamma] = useState<number>(1);
   const [aValue, setAValue] = useState(0);
   const [bValue, setBValue] = useState(0);
-  const [histogramFileUrl, setHistogramFileUrl] = useState<string | null>(null);
+
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const resetForm = () => {
-    setOriginalFile(null);
-    setUploadedFileName(null);
+    setFirstFileName(null);
+    setFirstFileUrl(null);
+    setSecondFileName(null);
+    setSecondFileUrl(null);
     setAlteredFileUrl(null);
     setGamma(1);
     setFilterToApply('default');
     setAValue(0);
     setBValue(0);
     setScaleFactor(0);
-    setHistogramFileUrl('');
+    setHistogramFileUrl(null);
     clearInputFiles();
-  }
+  };
 
   const clearInputFiles = () => {
     const fileInputs = document.querySelectorAll<HTMLInputElement>('input[type="file"]');
     fileInputs.forEach(file => file.value = '')
-  }
-
+  };
 
   const handleOnChangeFilter = async (event: ChangeEvent<HTMLSelectElement>) => {
     const filterToApply = event.target.value;
@@ -43,50 +49,57 @@ function Editor() {
       return;
     }
     setFilterToApply(filterToApply);
-  }
+  };
 
-  const handleOriginalFile = async (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFirstFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files;
     if (!fileList) {
       return;
     }
 
     const selectedFile: File = fileList[0];
-    const uploadedFile = await uploadFile(selectedFile);
+    const uploadedFileName = await uploadFile(selectedFile);
 
-    if (!uploadedFile) {
+    if (!uploadedFileName) {
       return;
     }
 
-    setOriginalFile(selectedFile);
-    setUploadedFileName(uploadedFile);
+    setFirstFileName(uploadedFileName);
 
     if (['nearest-neighbor-resampling', 'bilinear-interpolation-resampling'].includes(filterToApply) && scaleFactor === 4) {
       openModal();
     }
   }
 
-  const getOriginalFileUrl = () => {
-    if (!originalFile) {
-      return null;
+  useEffect(() => {
+    if (!firstFileName) {
+      return;
     }
+    setFirstFileUrl(`${BASE_URL}/uploads/${firstFileName}`);
+  }, [firstFileName]);
 
-    return URL.createObjectURL(originalFile);
-  }
-
-  const handleAuxFile = async (e: ChangeEvent<HTMLInputElement>) => {
+  const handleSecondFile = async (e: ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files;
     if (!fileList) {
       return;
     }
 
     const selectedFile: File = fileList[0];
-    const uploadedFilePath = await uploadFile(selectedFile);
-    if (!uploadedFilePath) {
+    const uploadedFileName = await uploadFile(selectedFile);
+
+    if (!uploadedFileName) {
       return;
     }
-    setAuxFileUrl(uploadedFilePath);
+
+    setSecondFileName(uploadedFileName);
   }
+
+  useEffect(() => {
+    if (!secondFileName) {
+      return;
+    }
+    setSecondFileUrl(`${BASE_URL}/uploads/${secondFileName}`);
+  }, [secondFileName]);
 
   const handleAValue = async (event: ChangeEvent<HTMLInputElement>) => {
     const inputedAValue = event.target.value;
@@ -104,7 +117,6 @@ function Editor() {
     setBValue(parseInt(inputedBValue));
   }
 
-
   const handleOnChangeScaleFactor = async (event: ChangeEvent<HTMLSelectElement>) => {
     const selectedScale = event.target.value;
     if (!selectedScale) {
@@ -116,28 +128,37 @@ function Editor() {
   const handleOnSubmitForm = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!filterToApply || !uploadedFileName) {
+    if (!filterToApply || !firstFileName) {
       return;
     }
 
-    const alteredFileName = await applyFilter(filterToApply, uploadedFileName, '', gamma, aValue, bValue, scaleFactor);
+    const alteredFileUrl = await applyFilter(
+      filterToApply, 
+      firstFileName, 
+      secondFileName, 
+      gamma, 
+      aValue, 
+      bValue, 
+      scaleFactor
+    );
 
-    if (!alteredFileName) {
+    if (!alteredFileUrl) {
       return;
     }
 
-    setAlteredFileUrl(alteredFileName);
+    setAlteredFileUrl(alteredFileUrl);
+
     if (['nearest-neighbor-resampling', 'bilinear-interpolation-resampling'].includes(filterToApply) && scaleFactor === 4) {
       openModal();
     }
   }
 
   const handleHistogram = async () => {
-    if (!uploadedFileName) {
+    if (!firstFileName) {
       return;
     }
 
-    const histogramfilePath = await generateHistogram(uploadedFileName);
+    const histogramfilePath = await generateHistogram(firstFileName);
 
     if (!histogramfilePath) {
       return;
@@ -176,6 +197,7 @@ function Editor() {
               id="filters"
               value={filterToApply}
               onChange={handleOnChangeFilter}
+              disabled={!firstFileUrl}
             >
               <option value="default" disabled hidden>Filtros</option>
               <option value="negative">Negativo</option>
@@ -201,7 +223,7 @@ function Editor() {
                   id="gamma"
                   value={gamma}
                   onChange={e => setGamma(parseInt(e.target.value))}
-                  disabled={!getOriginalFileUrl()}
+                  disabled={!firstFileUrl}
                   type="range"
                   min={1}
                   max={200}
@@ -254,7 +276,7 @@ function Editor() {
           <button
             type="button"
             id="getHistogram"
-            className={`text-rose-400 py-2 rounded-lg border border-solid border-rose-400 hover:bg-rose-400 hover:text-white ${getOriginalFileUrl() ? '' : 'hidden'}`}
+            className={`text-rose-400 py-2 rounded-lg border border-solid border-rose-400 hover:bg-rose-400 hover:text-white ${firstFileUrl ? '' : 'hidden'}`}
             onClick={handleHistogram}
           >
             Obter histograma
@@ -262,9 +284,9 @@ function Editor() {
 
           <div className="w-full flex items-center justify-end">
             <button
-              className={`py-2 px-4 rounded-lg text-white ${getOriginalFileUrl() ? 'bg-rose-400' : 'bg-gray-400'}`}
+              className={`py-2 px-4 rounded-lg text-white ${firstFileUrl ? 'bg-rose-400' : 'bg-gray-400'}`}
               type="submit"
-              disabled={!getOriginalFileUrl()}
+              disabled={!firstFileUrl}
             >
               Apply filter
             </button>
@@ -272,10 +294,10 @@ function Editor() {
         </form>
 
         <div className="flex items-center justify-center gap-4 col-span-5 border-dashed border-2 border-rose-400">
-          <ImageUpload fileUrl={getOriginalFileUrl()} handleSelectedFile={handleOriginalFile}></ImageUpload>
+          <ImageUploader fileUrl={firstFileUrl} handleSelectedFile={handleFirstFileChange}></ImageUploader>
 
           {filterToApply === 'add-two-images' && (
-            <ImageUpload fileUrl={auxFileUrl} handleSelectedFile={handleAuxFile}></ImageUpload>
+            <ImageUploader fileUrl={secondFileUrl} handleSelectedFile={handleSecondFile}></ImageUploader>
           )}
 
           {alteredFileUrl && scaleFactor !== 4 && (
