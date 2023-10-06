@@ -19,8 +19,8 @@ function Editor() {
   const [scaleFactor, setScaleFactor] = useState<number>(2);
   const [gamma, setGamma] = useState<number>(1);
   const [mergePercentage, setMergePercentage] = useState<number>(0);
-  const [aValue, setAValue] = useState(0);
-  const [bValue, setBValue] = useState(0);
+  const [aValue, setAValue] = useState<number | ''>('');
+  const [bValue, setBValue] = useState<number | ''>('');
   const [hiperboost, setHiperboost] = useState<boolean>(false);
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -110,7 +110,8 @@ function Editor() {
     if (!inputedAValue) {
       return;
     }
-    setAValue(parseInt(inputedAValue));
+    console.log(inputedAValue)
+    setAValue(parseFloat(inputedAValue));
   }
 
   const handleBValue = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -118,7 +119,7 @@ function Editor() {
     if (!inputedBValue) {
       return;
     }
-    setBValue(parseInt(inputedBValue));
+    setBValue(parseFloat(inputedBValue));
   }
 
   const handleOnChangeScaleFactor = async (event: ChangeEvent<HTMLSelectElement>) => {
@@ -226,13 +227,13 @@ function Editor() {
             {filterToApply === 'laplace' && (
               <div className="flex items-center gap-2">
                 <label className="font-bold drop-shadow-lg" htmlFor="hiperBosst">HiperBoost</label>
-                <input id="hiperBosst" type="checkbox" className="accent-rose-400" onChange={e => setHiperboost(Boolean(e.target.value))}/>
+                <input id="hiperBosst" type="checkbox" className="accent-rose-400" onChange={e => setHiperboost(Boolean(e.target.value))} />
               </div>
             )}
 
             {['logarithm', 'inverse-logarithm', 'power', 'root'].includes(filterToApply) && (
               <div className="flex flex-col">
-              <label htmlFor="gamma">Gamma</label>
+                <label htmlFor="gamma">Gamma</label>
                 <div className="flex items-center justify-center gap-2">
                   <input
                     className="w-full accent-rose-400"
@@ -254,10 +255,10 @@ function Editor() {
               <div className="flex flex-col">
                 <label htmlFor="gamma">Porcentagem</label>
                 <div className="flex items-center justify-center gap-2">
-                <p className="font-bold">{mergePercentage}%</p>
+                  <p className="font-bold">{mergePercentage}%</p>
                   <input
                     className="w-full accent-rose-400"
-                    id="gamma"
+                    id="mergePercentage"
                     value={mergePercentage}
                     onChange={e => setMergePercentage(parseInt(e.target.value))}
                     disabled={!secondFileUrl}
@@ -272,15 +273,17 @@ function Editor() {
 
             {['expansion', 'compression'].includes(filterToApply) && (
               <div>
-                <hr className="border border-solid border-gray-400 mb-6" />
                 <div className="flex flex-col gap-2">
+                  <span className="font-bold drop-shadow-lg">{filterToApply === 'expansion' ? 'g = a*r + b' : 'g = r / a – b'}</span>
                   <input
                     className="border border-solid border-black rounded-lg px-2"
                     type="number"
                     name="a"
                     id="a"
                     placeholder="A"
-                    value={aValue}
+                    step="0.1"
+                    min='0'
+                    max="10"
                     onChange={handleAValue}
                   />
                   <input
@@ -289,7 +292,9 @@ function Editor() {
                     name="b"
                     id="b"
                     placeholder="B"
-                    value={bValue}
+                    step="0.1"
+                    min='0'
+                    max="10"
                     onChange={handleBValue}
                   />
                 </div>
@@ -340,9 +345,9 @@ function Editor() {
 
           {alteredFileUrl && scaleFactor !== 4 && (
             <div className="min-w-[256px] min-h-[256px] p-2 flex items-center justify-center border-dashed border border-rose-400 rounded-md">
-            <ImageInformation>
-              <Image src={alteredFileUrl} alt={'altered image'}></Image>
-            </ImageInformation>
+              <ImageInformation>
+                <Image src={alteredFileUrl} alt={'altered image'}></Image>
+              </ImageInformation>
             </div>
           )}
         </div>
