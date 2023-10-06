@@ -22,6 +22,7 @@ function Editor() {
   const [aValue, setAValue] = useState<number | ''>('');
   const [bValue, setBValue] = useState<number | ''>('');
   const [hiperboost, setHiperboost] = useState<boolean>(false);
+  const [sobel, setSobel] = useState<boolean>(false);
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
@@ -39,6 +40,7 @@ function Editor() {
     setScaleFactor(0);
     setHistogramFileUrl(null);
     setHiperboost(false);
+    setSobel(false);
     clearInputFiles();
   };
 
@@ -146,7 +148,8 @@ function Editor() {
       bValue,
       scaleFactor,
       mergePercentage,
-      hiperboost
+      hiperboost,
+      sobel
     );
 
     if (!alteredFileUrl) {
@@ -222,7 +225,15 @@ function Editor() {
               <option value="bilinear-interpolation-resampling">Ampliação com interpolação bilinear</option>
               <option value="average">Média</option>
               <option value="laplace">Laplace</option>
+              <option value="prewitt_sobel">Prewitt&Sobel</option>
             </select>
+
+            {filterToApply === 'prewitt_sobel' && (
+              <div className="flex items-center gap-2">
+                <label className="font-bold drop-shadow-lg" htmlFor="sobel">Sobel?</label>
+                <input id="sobel" type="checkbox" className="accent-rose-400" onChange={e => setSobel(Boolean(e.target.value))} />
+              </div>
+            )}
 
             {filterToApply === 'laplace' && (
               <div className="flex items-center gap-2">
