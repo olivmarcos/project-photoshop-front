@@ -254,6 +254,7 @@ function Editor() {
               <div className="flex flex-col">
                 <label htmlFor="gamma">Porcentagem</label>
                 <div className="flex items-center justify-center gap-2">
+                <p className="font-bold">{mergePercentage}%</p>
                   <input
                     className="w-full accent-rose-400"
                     id="gamma"
@@ -264,7 +265,7 @@ function Editor() {
                     min={0}
                     max={100}
                   />
-                  <p className="font-bold">{mergePercentage}%</p>
+                  <p className="font-bold">{Math.abs(mergePercentage - 100)}%</p>
                 </div>
               </div>
             )}
