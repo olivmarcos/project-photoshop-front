@@ -21,6 +21,7 @@ function Editor() {
   const [mergePercentage, setMergePercentage] = useState<number>(0);
   const [aValue, setAValue] = useState(0);
   const [bValue, setBValue] = useState(0);
+  const [hiperboost, setHiperboost] = useState<boolean>(false);
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
@@ -37,6 +38,7 @@ function Editor() {
     setBValue(0);
     setScaleFactor(0);
     setHistogramFileUrl(null);
+    setHiperboost(false);
     clearInputFiles();
   };
 
@@ -142,7 +144,8 @@ function Editor() {
       aValue,
       bValue,
       scaleFactor,
-      mergePercentage
+      mergePercentage,
+      hiperboost
     );
 
     if (!alteredFileUrl) {
@@ -219,6 +222,13 @@ function Editor() {
               <option value="average">Média</option>
               <option value="laplace">Laplace</option>
             </select>
+
+            {filterToApply === 'laplace' && (
+              <div className="flex items-center gap-2">
+                <label className="font-bold drop-shadow-lg" htmlFor="hiperBosst">HiperBoost</label>
+                <input id="hiperBosst" type="checkbox" className="accent-rose-400" onChange={e => setHiperboost(Boolean(e.target.value))}/>
+              </div>
+            )}
 
             {['logarithm', 'inverse-logarithm', 'power', 'root'].includes(filterToApply) && (
               <div className="flex flex-col">

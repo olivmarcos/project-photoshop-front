@@ -49,7 +49,7 @@ function ImageInformation({ children, ...props }: MyDivProps) {
 
   return (
     <div className="flex flex-col relative">
-      <span className="font-bold absolute -top-10 left-0 bg-transparent">({coordinates.x},{coordinates.y}) = {pixelValue}</span>
+      <span className="font-bold absolute -top-10 left-0 bg-transparent drop-shadow-lg">({coordinates.x},{coordinates.y}) = {pixelValue}</span>
       <div {...props} onMouseMove={handleMouseHover}>
         {children}
       </div>
