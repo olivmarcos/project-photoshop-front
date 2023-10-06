@@ -28,6 +28,7 @@ const applyFilter = async (
   scaleFactor?: number,
   mergePercentage?: number,
   hiperboost?: boolean,
+  sobel?: boolean,
 ) => {
   const body = {
     filterToApply,
@@ -39,6 +40,7 @@ const applyFilter = async (
     ...(scaleFactor !== undefined && { scaleFactor }),
     ...(mergePercentage !== undefined && { mergePercentage }),
     ...(hiperboost !== undefined && { hiperboost }),
+    ...(sobel !== undefined && { sobel }),
   };
 
   try {
