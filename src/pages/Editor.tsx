@@ -83,7 +83,7 @@ function Editor() {
     if (!firstFileName) {
       return;
     }
-    setFirstFileUrl(`${BASE_URL}/uploads/${firstFileName}`);
+    setFirstFileUrl(`${BASE_URL}/images/uploaded/${firstFileName}`);
   }, [firstFileName]);
 
   const handleSecondFile = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -106,7 +106,7 @@ function Editor() {
     if (!secondFileName) {
       return;
     }
-    setSecondFileUrl(`${BASE_URL}/uploads/${secondFileName}`);
+    setSecondFileUrl(`${BASE_URL}/images/uploaded/${secondFileName}`);
   }, [secondFileName]);
 
   const handleAValue = async (event: ChangeEvent<HTMLInputElement>) => {

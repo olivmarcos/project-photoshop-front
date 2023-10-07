@@ -5,7 +5,7 @@ const uploadFile = async (file: File) => {
   formData.append('file', file, file.name);
 
   try {
-    const response = await fetch(`${BASE_URL}/upload`, {
+    const response = await fetch(`${BASE_URL}/images/upload`, {
       method: 'POST',
       body: formData,
     });
@@ -44,7 +44,7 @@ const applyFilter = async (
   };
 
   try {
-    const response = await fetch(`${BASE_URL}/filter`, {
+    const response = await fetch(`${BASE_URL}/images/filter`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ const applyFilter = async (
     });
 
     const { file_name } = await response.json();
-    return `${BASE_URL}/altered/${file_name}`
+    return `${BASE_URL}/images/filtered/${file_name}`
   } catch (error) {
     console.error('Erro applying filter', error);
   }
@@ -65,7 +65,7 @@ const generateHistogram = async (fileName: string) => {
   }
 
   try {
-    const response = await fetch(`${BASE_URL}/histogram`, {
+    const response = await fetch(`${BASE_URL}/images/histogram`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ const generateHistogram = async (fileName: string) => {
       body: JSON.stringify(body)
     })
     const { data } = await response.json();
-    return `${BASE_URL}/histogram/${data.fileName}`
+    return `${BASE_URL}/images/histogram/${data.fileName}`
   } catch (error) {
     console.log(error)
   }
@@ -93,7 +93,7 @@ const equalizeImage = async (fileName: string) => {
       body: JSON.stringify(body)
     })
     const { data } = await response.json();
-    return `${BASE_URL}/images/equalize/${data.fileName}`
+    return `${BASE_URL}/images/equalized/${data.fileName}`
   } catch (error) {
     console.log(error)
   }
