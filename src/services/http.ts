@@ -79,8 +79,30 @@ const generateHistogram = async (fileName: string) => {
   }
 };
 
+const equalizeImage = async (fileName: string) => {
+  const body = {
+    fileName
+  }
+
+  try {
+    const response = await fetch(`${BASE_URL}/images/equalize`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body)
+    })
+    const { data } = await response.json();
+    return `${BASE_URL}/images/equalize/${data.fileName}`
+  } catch (error) {
+    console.log(error)
+  }
+};
+
+
 export {
   uploadFile,
   applyFilter,
-  generateHistogram
+  generateHistogram,
+  equalizeImage
 }

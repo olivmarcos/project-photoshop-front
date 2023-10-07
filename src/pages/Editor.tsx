@@ -1,6 +1,6 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import ImageUploader from "../components/ImageUploader";
-import { applyFilter, generateHistogram, uploadFile } from "../services/http";
+import { applyFilter, equalizeImage, generateHistogram, uploadFile } from "../services/http";
 import Image from "../components/Image";
 import Modal from "../components/Modal";
 import ImageInformation from "../components/ImageInformation";
@@ -14,6 +14,7 @@ function Editor() {
   const [secondFileUrl, setSecondFileUrl] = useState<string | null>(null);
   const [alteredFileUrl, setAlteredFileUrl] = useState<string | null>(null);
   const [histogramFileUrl, setHistogramFileUrl] = useState<string | null>(null);
+  const [equalizedFileUrl, setEqualizedFileUrl] = useState<string | null>(null);
 
   const [filterToApply, setFilterToApply] = useState<string>('default');
   const [scaleFactor, setScaleFactor] = useState<number>(2);
@@ -32,6 +33,7 @@ function Editor() {
     setSecondFileName(null);
     setSecondFileUrl(null);
     setAlteredFileUrl(null);
+    setEqualizedFileUrl(null);
     setGamma(1);
     setMergePercentage(0);
     setFilterToApply('default');
@@ -178,6 +180,20 @@ function Editor() {
     openModal();
   }
 
+  const handleImageEqualization = async () => {
+    if (!firstFileName) {
+      return;
+    }
+
+    const equalizedImage = await equalizeImage(firstFileName);
+
+    if (!equalizedImage) {
+      return;
+    }
+    console.log(equalizedImage)
+    setEqualizedFileUrl(equalizedImage);
+  }
+
   const openModal = () => {
     setIsModalOpen(true);
   };
@@ -223,7 +239,9 @@ function Editor() {
               <option value="add-two-images">Soma de 2 imagens</option>
               <option value="nearest-neighbor-resampling">Ampliação com replicação de pixels</option>
               <option value="bilinear-interpolation-resampling">Ampliação com interpolação bilinear</option>
-              <option value="average">Média</option>
+              <option value="mean">Média</option>
+              <option value="median">Mediana</option>
+              <option value="mode">Moda</option>
               <option value="laplace">Laplace</option>
               <option value="prewitt_sobel">Prewitt&Sobel</option>
             </select>
@@ -336,6 +354,15 @@ function Editor() {
             Obter histograma
           </button>
 
+          <button
+            type="button"
+            id="equalizeImage"
+            className={`text-rose-400 py-2 rounded-lg border border-solid border-rose-400 hover:bg-rose-400 hover:text-white ${firstFileUrl ? '' : 'hidden'}`}
+            onClick={handleImageEqualization}
+          >
+            Equalizar imagem
+          </button>
+
           <div className="w-full flex items-center justify-end">
             <button
               className={`py-2 px-4 rounded-lg text-white ${firstFileUrl ? 'bg-rose-400' : 'bg-gray-400'}`}
@@ -354,10 +381,10 @@ function Editor() {
             <ImageUploader fileUrl={secondFileUrl} handleSelectedFile={handleSecondFile}></ImageUploader>
           )}
 
-          {alteredFileUrl && scaleFactor !== 4 && (
+          {alteredFileUrl || equalizedFileUrl && scaleFactor !== 4 && (
             <div className="min-w-[256px] min-h-[256px] p-2 flex items-center justify-center border-dashed border border-rose-400 rounded-md">
               <ImageInformation>
-                <Image src={alteredFileUrl} alt={'altered image'}></Image>
+                <Image src={alteredFileUrl || equalizedFileUrl} alt={'altered image'}></Image>
               </ImageInformation>
             </div>
           )}
