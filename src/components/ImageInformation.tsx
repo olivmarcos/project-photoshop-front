@@ -1,4 +1,7 @@
-import React, { HTMLAttributes, ReactNode, useState } from "react";
+import React, { HTMLAttributes, ReactNode, useEffect, useState } from "react";
+import { equalizeImage, generateHistogram } from "../services/http";
+import { Image as ImageComponent } from "./Image";
+import Modal from "./Modal";
 
 interface MyDivProps extends HTMLAttributes<HTMLDivElement> {
   children?: ReactNode;
@@ -7,22 +10,35 @@ interface MyDivProps extends HTMLAttributes<HTMLDivElement> {
 function ImageInformation({ children, ...props }: MyDivProps) {
   const [pixelValue, setPixelValue] = useState<number | null>(null);
   const [coordinates, setCoordinates] = useState({ x: 0, y: 0 });
+  const [imageId, setImageId] = useState<string>('');
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [histogramFileUrl, setHistogramFileUrl] = useState<string | null>(null);
+  const [equalizedFileHistogramUrl, setEqualizedFileHistogramUrl] = useState<string | null>(null);
+  const [equalizedFileUrl, setEqualizedFileUrl] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    React.Children.forEach(children, (child) => {
+      if (React.isValidElement(child) && 'src' in child.props) {
+        setImageUrl(child.props.src);
+        setImageId(child.props.id);
+      }
+    });
+  }, [children]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleMouseHover = (e: any) => {
-    let foundSrc = '';
-
-    React.Children.forEach(children, (child) => {
-      if (React.isValidElement(child) && 'src' in child.props) {
-        foundSrc = child.props.src;
-      }
-    });
+    if (!imageUrl) {
+      return;
+    }
 
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
+
     const image = new Image();
     image.crossOrigin = "Anonymous";
-    image.src = foundSrc;
+    image.src = imageUrl;
+    image.id = imageId
 
     if (!ctx) {
       return;
@@ -44,16 +60,99 @@ function ImageInformation({ children, ...props }: MyDivProps) {
       setPixelValue(pixelValue);
       setCoordinates({ x: coordinates.x, y: coordinates.y });
     };
-
   }
 
+  const handleOnClikGenerateHistogram = async () => {
+    if (!imageId) {
+      return;
+    }
+
+    const histogramfilePath = await generateHistogram(imageId);
+
+    if (!histogramfilePath) {
+      return;
+    }
+
+    setHistogramFileUrl(histogramfilePath);
+    openModal();
+  }
+
+  const handleEqualizeImage = async () => {
+    if (!imageId) {
+      return;
+    }
+
+    const equalizedImage = await equalizeImage(imageId);
+
+    if (!equalizedImage) {
+      return;
+    }
+
+    setEqualizedFileUrl(equalizedImage);
+
+    const equalizedImageHistogram = await generateHistogram(`equalized_${imageId}`, 'equalized_images')
+
+    if (!equalizedImageHistogram) {
+      return;
+    }
+    setEqualizedFileHistogramUrl(equalizedImageHistogram);
+  }
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setHistogramFileUrl(null);
+  };
+
   return (
-    <div className="flex flex-col relative">
-      <span className="font-bold absolute -top-10 left-0 bg-transparent drop-shadow-lg">({coordinates.x},{coordinates.y}) = {pixelValue}</span>
-      <div {...props} onMouseMove={handleMouseHover}>
-        {children}
+    <>
+      <div className="flex flex-col relative">
+        <span className="font-bold absolute -top-10 left-0 bg-transparent drop-shadow-lg">({coordinates.x},{coordinates.y}) = {pixelValue}</span>
+        <div {...props} onMouseMove={handleMouseHover}>
+          {children}
+        </div>
+        <button
+          onClick={handleOnClikGenerateHistogram}
+          className="px-3 border border-solid border-rose-400 text-rose-400 hover:bg-rose-400 hover:text-white absolute top-[108%]">
+          Gerar histograma
+        </button>
       </div>
-    </div>
+
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
+        {histogramFileUrl && imageUrl && (
+          <div className="w-full h-full flex flex-col items-center gap-4">
+            <div className="flex gap-2 items-center justify-center">
+              <div>
+                <ImageComponent src={imageUrl} alt={imageId}></ImageComponent>
+              </div>
+              <div>
+                <ImageComponent src={histogramFileUrl} alt={'image histogram'}></ImageComponent>
+              </div>
+            </div>
+
+            <button className="px-3 border border-solid border-rose-400 text-rose-400 hover:bg-rose-400 hover:text-white"
+              onClick={handleEqualizeImage}>
+              Equalizar imagem
+            </button>
+
+            {equalizedFileUrl && equalizedFileHistogramUrl && (
+              <div className="flex gap-2 items-center justify-center">
+                <div>
+                  <ImageComponent src={equalizedFileUrl} alt='equalized image'></ImageComponent>
+                </div>
+                <div>
+                  <ImageComponent src={equalizedFileHistogramUrl} alt={'equalized image histogram'}></ImageComponent>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </Modal>
+    </>
+
   );
 }
 

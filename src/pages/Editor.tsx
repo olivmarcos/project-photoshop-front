@@ -1,7 +1,7 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import ImageUploader from "../components/ImageUploader";
-import { applyFilter, equalizeImage, generateHistogram, uploadFile } from "../services/http";
-import Image from "../components/Image";
+import { applyFilter, uploadFile } from "../services/http";
+import { Image } from "../components/Image";
 import Modal from "../components/Modal";
 import ImageInformation from "../components/ImageInformation";
 
@@ -13,7 +13,6 @@ function Editor() {
   const [secondFileName, setSecondFileName] = useState<string | null>(null);
   const [secondFileUrl, setSecondFileUrl] = useState<string | null>(null);
   const [alteredFileUrl, setAlteredFileUrl] = useState<string | null>(null);
-  const [histogramFileUrl, setHistogramFileUrl] = useState<string | null>(null);
   const [equalizedFileUrl, setEqualizedFileUrl] = useState<string | null>(null);
 
   const [filterToApply, setFilterToApply] = useState<string>('default');
@@ -40,7 +39,6 @@ function Editor() {
     setAValue(0);
     setBValue(0);
     setScaleFactor(0);
-    setHistogramFileUrl(null);
     setHiperboost(false);
     setSobel(false);
     clearInputFiles();
@@ -114,7 +112,6 @@ function Editor() {
     if (!inputedAValue) {
       return;
     }
-    console.log(inputedAValue)
     setAValue(parseFloat(inputedAValue));
   }
 
@@ -163,35 +160,6 @@ function Editor() {
     if (['nearest-neighbor-resampling', 'bilinear-interpolation-resampling'].includes(filterToApply) && scaleFactor === 4) {
       openModal();
     }
-  }
-
-  const handleHistogram = async () => {
-    if (!firstFileName) {
-      return;
-    }
-
-    const histogramfilePath = await generateHistogram(firstFileName);
-
-    if (!histogramfilePath) {
-      return;
-    }
-
-    setHistogramFileUrl(histogramfilePath);
-    openModal();
-  }
-
-  const handleImageEqualization = async () => {
-    if (!firstFileName) {
-      return;
-    }
-
-    const equalizedImage = await equalizeImage(firstFileName);
-
-    if (!equalizedImage) {
-      return;
-    }
-    console.log(equalizedImage)
-    setEqualizedFileUrl(equalizedImage);
   }
 
   const openModal = () => {
@@ -345,24 +313,6 @@ function Editor() {
             )}
           </div>
 
-          <button
-            type="button"
-            id="getHistogram"
-            className={`text-rose-400 py-2 rounded-lg border border-solid border-rose-400 hover:bg-rose-400 hover:text-white ${firstFileUrl ? '' : 'hidden'}`}
-            onClick={handleHistogram}
-          >
-            Obter histograma
-          </button>
-
-          <button
-            type="button"
-            id="equalizeImage"
-            className={`text-rose-400 py-2 rounded-lg border border-solid border-rose-400 hover:bg-rose-400 hover:text-white ${firstFileUrl ? '' : 'hidden'}`}
-            onClick={handleImageEqualization}
-          >
-            Equalizar imagem
-          </button>
-
           <div className="w-full flex items-center justify-end">
             <button
               className={`py-2 px-4 rounded-lg text-white ${firstFileUrl ? 'bg-rose-400' : 'bg-gray-400'}`}
@@ -375,10 +325,10 @@ function Editor() {
         </form>
 
         <div className="flex items-center justify-center gap-4 col-span-5 border-dashed border-2 border-rose-400">
-          <ImageUploader fileUrl={firstFileUrl} handleSelectedFile={handleFirstFileChange}></ImageUploader>
+          <ImageUploader fileName={firstFileName || ''} fileUrl={firstFileUrl} handleSelectedFile={handleFirstFileChange}></ImageUploader>
 
           {filterToApply === 'add-two-images' && (
-            <ImageUploader fileUrl={secondFileUrl} handleSelectedFile={handleSecondFile}></ImageUploader>
+            <ImageUploader fileName={secondFileName || ''} fileUrl={secondFileUrl} handleSelectedFile={handleSecondFile}></ImageUploader>
           )}
 
           {alteredFileUrl || equalizedFileUrl && scaleFactor !== 4 && (
@@ -395,12 +345,6 @@ function Editor() {
         {alteredFileUrl && (
           <div>
             <img src={alteredFileUrl} alt="filteredImage" />
-          </div>
-        )}
-
-        {histogramFileUrl && (
-          <div>
-            <Image src={histogramFileUrl} alt={'image histogram'}></Image>
           </div>
         )}
       </Modal>

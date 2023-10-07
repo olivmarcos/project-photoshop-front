@@ -10,8 +10,8 @@ const uploadFile = async (file: File) => {
       body: formData,
     });
 
-    const { file_name } = await response.json();
-    return file_name;
+    const { data } = await response.json();
+    return data.fileName;
 
   } catch (error) {
     console.error('Error uploading image:', error);
@@ -59,9 +59,10 @@ const applyFilter = async (
   }
 };
 
-const generateHistogram = async (fileName: string) => {
+const generateHistogram = async (fileName: string, from: string = 'uploaded_images') => {
   const body = {
-    fileName
+    fileName,
+    from
   }
 
   try {
