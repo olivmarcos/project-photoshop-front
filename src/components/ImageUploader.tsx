@@ -27,7 +27,7 @@ function ImageUploader({ fileUrl, fileName, handleSelectedFile }: ImageUploaderP
         onClick={handleOnClick}>
         {!fileUrl && <span className="drop-shadow-lg">Selecione uma imagem</span>}
         {fileUrl && 
-          <ImageInformation>
+          <ImageInformation context="upload">
             <Image id={fileName} src={fileUrl} alt={fileName}></Image>
           </ImageInformation>
         }

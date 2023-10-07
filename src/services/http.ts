@@ -52,8 +52,8 @@ const applyFilter = async (
       body: JSON.stringify(body)
     });
 
-    const { file_name } = await response.json();
-    return `${BASE_URL}/images/filtered/${file_name}`
+    const { data } = await response.json();
+    return data.fileName;
   } catch (error) {
     console.error('Erro applying filter', error);
   }

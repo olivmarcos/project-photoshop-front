@@ -4,10 +4,11 @@ import { Image as ImageComponent } from "./Image";
 import Modal from "./Modal";
 
 interface MyDivProps extends HTMLAttributes<HTMLDivElement> {
+  context?: string;
   children?: ReactNode;
 }
 
-function ImageInformation({ children, ...props }: MyDivProps) {
+function ImageInformation({ children, context, ...props }: MyDivProps) {
   const [pixelValue, setPixelValue] = useState<number | null>(null);
   const [coordinates, setCoordinates] = useState({ x: 0, y: 0 });
   const [imageId, setImageId] = useState<string>('');
@@ -62,12 +63,27 @@ function ImageInformation({ children, ...props }: MyDivProps) {
     };
   }
 
+  const handleHistogram = async (fileName: string) => {
+    let location = 'equalized_images';
+
+    if (context === 'filtered') {
+      location = 'filtered_images';
+    }
+
+    if (context === 'upload') {
+      location = 'uploaded_images';
+    }
+
+    return await generateHistogram(fileName, location);
+  }
+
   const handleOnClikGenerateHistogram = async () => {
+    console.log(context)
     if (!imageId) {
       return;
     }
 
-    const histogramfilePath = await generateHistogram(imageId);
+    const histogramfilePath = await handleHistogram(imageId);
 
     if (!histogramfilePath) {
       return;
@@ -89,8 +105,8 @@ function ImageInformation({ children, ...props }: MyDivProps) {
     }
 
     setEqualizedFileUrl(equalizedImage);
-
-    const equalizedImageHistogram = await generateHistogram(`equalized_${imageId}`, 'equalized_images')
+    context = 'equalize';
+    const equalizedImageHistogram = await handleHistogram(`equalized_${imageId}`);
 
     if (!equalizedImageHistogram) {
       return;

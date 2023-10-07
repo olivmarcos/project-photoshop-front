@@ -12,8 +12,8 @@ function Editor() {
   const [firstFileUrl, setFirstFileUrl] = useState<string | null>(null);
   const [secondFileName, setSecondFileName] = useState<string | null>(null);
   const [secondFileUrl, setSecondFileUrl] = useState<string | null>(null);
+  const [alteredFileName, setAlteredFileName] = useState<string | null>(null);
   const [alteredFileUrl, setAlteredFileUrl] = useState<string | null>(null);
-  const [equalizedFileUrl, setEqualizedFileUrl] = useState<string | null>(null);
 
   const [filterToApply, setFilterToApply] = useState<string>('default');
   const [scaleFactor, setScaleFactor] = useState<number>(2);
@@ -31,8 +31,8 @@ function Editor() {
     setFirstFileUrl(null);
     setSecondFileName(null);
     setSecondFileUrl(null);
+    setAlteredFileName(null);
     setAlteredFileUrl(null);
-    setEqualizedFileUrl(null);
     setGamma(1);
     setMergePercentage(0);
     setFilterToApply('default');
@@ -138,7 +138,7 @@ function Editor() {
       return;
     }
 
-    const alteredFileUrl = await applyFilter(
+    const filteredfileName = await applyFilter(
       filterToApply,
       firstFileName,
       secondFileName,
@@ -151,16 +151,20 @@ function Editor() {
       sobel
     );
 
-    if (!alteredFileUrl) {
+    if (!filteredfileName) {
       return;
     }
 
-    setAlteredFileUrl(alteredFileUrl);
+    setAlteredFileName(filteredfileName);
 
     if (['nearest-neighbor-resampling', 'bilinear-interpolation-resampling'].includes(filterToApply) && scaleFactor === 4) {
       openModal();
     }
   }
+
+  useEffect(() => {
+    setAlteredFileUrl(`${BASE_URL}/images/filtered/${alteredFileName}`)
+  }, [alteredFileName]);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -174,7 +178,6 @@ function Editor() {
     <div className="w-full h-full flex flex-col items-center gap-4">
       <div className="bg-rose-400 text-white flex items-center justify-between w-full h-16 px-6 rounded-md shadow-md">
         <span className="font-bold">PDI - Project Photoshop</span>
-        {/* <span>Download images</span> */}
       </div>
 
       <div className="w-full flex items-center justify-end pr-10">
@@ -331,10 +334,10 @@ function Editor() {
             <ImageUploader fileName={secondFileName || ''} fileUrl={secondFileUrl} handleSelectedFile={handleSecondFile}></ImageUploader>
           )}
 
-          {alteredFileUrl || equalizedFileUrl && scaleFactor !== 4 && (
+          {alteredFileUrl && alteredFileName && scaleFactor !== 4 && (
             <div className="min-w-[256px] min-h-[256px] p-2 flex items-center justify-center border-dashed border border-rose-400 rounded-md">
-              <ImageInformation>
-                <Image src={alteredFileUrl || equalizedFileUrl} alt={'altered image'}></Image>
+              <ImageInformation context="filtered">
+                <Image id={alteredFileName} src={alteredFileUrl} alt={'altered image'}></Image>
               </ImageInformation>
             </div>
           )}
