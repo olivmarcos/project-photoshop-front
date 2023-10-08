@@ -29,6 +29,7 @@ const applyFilter = async (
   mergePercentage?: number,
   hiperboost?: boolean,
   sobel?: boolean,
+  mask_size?: number | '',
 ) => {
   const body = {
     filterToApply,
@@ -41,7 +42,9 @@ const applyFilter = async (
     ...(mergePercentage !== undefined && { mergePercentage }),
     ...(hiperboost !== undefined && { hiperboost }),
     ...(sobel !== undefined && { sobel }),
+    ...(mask_size !== undefined && { mask_size }),
   };
+  
 
   try {
     const response = await fetch(`${BASE_URL}/images/filter`, {
