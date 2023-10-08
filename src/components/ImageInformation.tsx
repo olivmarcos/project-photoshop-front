@@ -63,7 +63,7 @@ function ImageInformation({ children, context, ...props }: MyDivProps) {
     };
   }
 
-  const handleHistogram = async (fileName: string) => {
+  const getFileLocationByContext = () => {
     let location = 'equalized_images';
 
     if (context === 'filtered') {
@@ -74,16 +74,17 @@ function ImageInformation({ children, context, ...props }: MyDivProps) {
       location = 'uploaded_images';
     }
 
-    return await generateHistogram(fileName, location);
+    return location;
   }
 
   const handleOnClikGenerateHistogram = async () => {
-    console.log(context)
+    setHistogramFileUrl(null);
     if (!imageId) {
       return;
     }
 
-    const histogramfilePath = await handleHistogram(imageId);
+    const location = getFileLocationByContext();
+    const histogramfilePath = await generateHistogram(imageId, location);
 
     if (!histogramfilePath) {
       return;
@@ -98,15 +99,17 @@ function ImageInformation({ children, context, ...props }: MyDivProps) {
       return;
     }
 
-    const equalizedImage = await equalizeImage(imageId);
+    let location = getFileLocationByContext();
+    const equalizedImage = await equalizeImage(imageId, location);
 
     if (!equalizedImage) {
       return;
     }
 
-    setEqualizedFileUrl(equalizedImage);
     context = 'equalize';
-    const equalizedImageHistogram = await handleHistogram(`equalized_${imageId}`);
+    location = getFileLocationByContext();
+    setEqualizedFileUrl(equalizedImage);
+    const equalizedImageHistogram = await generateHistogram(imageId, location);
 
     if (!equalizedImageHistogram) {
       return;
@@ -121,6 +124,8 @@ function ImageInformation({ children, context, ...props }: MyDivProps) {
   const closeModal = () => {
     setIsModalOpen(false);
     setHistogramFileUrl(null);
+    setEqualizedFileUrl(null);
+    setEqualizedFileHistogramUrl(null);
   };
 
   return (

@@ -29,7 +29,7 @@ const applyFilter = async (
   mergePercentage?: number,
   hiperboost?: boolean,
   sobel?: boolean,
-  mask_size?: number | '',
+  maskSize?: number | '',
 ) => {
   const body = {
     filterToApply,
@@ -42,10 +42,9 @@ const applyFilter = async (
     ...(mergePercentage !== undefined && { mergePercentage }),
     ...(hiperboost !== undefined && { hiperboost }),
     ...(sobel !== undefined && { sobel }),
-    ...(mask_size !== undefined && { mask_size }),
+    ...(maskSize !== undefined && { maskSize }),
   };
   
-
   try {
     const response = await fetch(`${BASE_URL}/images/filter`, {
       method: 'POST',
@@ -77,15 +76,16 @@ const generateHistogram = async (fileName: string, from: string = 'uploaded_imag
       body: JSON.stringify(body)
     })
     const { data } = await response.json();
-    return `${BASE_URL}/images/histogram/${data.fileName}`
+    return `${BASE_URL}/images/histogram/${data.fileName}?_cache=${Date.now()}`
   } catch (error) {
     console.log(error)
   }
 };
 
-const equalizeImage = async (fileName: string) => {
+const equalizeImage = async (fileName: string,  from: string = 'uploaded_images') => {
   const body = {
-    fileName
+    fileName,
+    from
   }
 
   try {
@@ -97,7 +97,7 @@ const equalizeImage = async (fileName: string) => {
       body: JSON.stringify(body)
     })
     const { data } = await response.json();
-    return `${BASE_URL}/images/equalized/${data.fileName}`
+    return `${BASE_URL}/images/equalized/${data.fileName}?_cache=${Date.now()}`
   } catch (error) {
     console.log(error)
   }

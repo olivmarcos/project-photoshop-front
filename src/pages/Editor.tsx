@@ -24,7 +24,7 @@ function Editor() {
   const [bValue, setBValue] = useState<number | ''>('');
   const [hiperboost, setHiperboost] = useState<boolean>(false);
   const [sobel, setSobel] = useState<boolean>(false);
-  const [mask_size, setMask_size] = useState<number>(3);
+  const [maskSize, setMaskSize] = useState<number>(3);
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
@@ -43,7 +43,7 @@ function Editor() {
     setScaleFactor(0);
     setHiperboost(false);
     setSobel(false);
-    setMask_size(3);
+    setMaskSize(3);
     clearInputFiles();
   };
 
@@ -59,6 +59,11 @@ function Editor() {
     }
     setFilterToApply(filterToApply);
   };
+
+  useEffect(() => {
+    setAlteredFileName(null);
+    setAlteredFileUrl(null);
+  }, [filterToApply])
 
   const handleFirstFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files;
@@ -84,6 +89,7 @@ function Editor() {
     if (!firstFileName) {
       return;
     }
+    
     setFirstFileUrl(`${BASE_URL}/images/uploaded/${firstFileName}`);
   }, [firstFileName]);
 
@@ -107,7 +113,7 @@ function Editor() {
     if (!secondFileName) {
       return;
     }
-    setSecondFileUrl(`${BASE_URL}/images/uploaded/${secondFileName}`);
+    setSecondFileUrl(`${BASE_URL}/images/uploaded/${secondFileName}?_cache=${Date.now()}`);
   }, [secondFileName]);
 
   const handleAValue = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -116,14 +122,6 @@ function Editor() {
       return;
     }
     setAValue(parseFloat(inputedAValue));
-  }
-
-  const handleMask_sizeValue = async (event: ChangeEvent<HTMLInputElement>) => {
-    const inputedMask_sizeValue = event.target.value;
-    if (!inputedMask_sizeValue) {
-      return;
-    }
-    setMask_size(parseInt(inputedMask_sizeValue));
   }
 
   const handleBValue = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -160,7 +158,7 @@ function Editor() {
       mergePercentage,
       hiperboost,
       sobel,
-      mask_size
+      maskSize
     );
 
     if (!filteredfileName) {
@@ -175,7 +173,7 @@ function Editor() {
   }
 
   useEffect(() => {
-    setAlteredFileUrl(`${BASE_URL}/images/filtered/${alteredFileName}`)
+    setAlteredFileUrl(`${BASE_URL}/images/filtered/${alteredFileName}?_cache=${Date.now()}`)
   }, [alteredFileName]);
 
   const openModal = () => {
@@ -229,24 +227,20 @@ function Editor() {
               <option value="prewitt_sobel">Prewitt&Sobel</option>
             </select>
 
-            {['mean'].includes(filterToApply) && (
-              <div>
-                <div className="flex flex-col gap-2">
-                  <input
-                    className="border border-solid border-black rounded-lg px-2"
-                    type="number"
-                    name="mask_size"
-                    id="mask_size"
-                    placeholder="Tamanho da mascara"
-                    step="2"
-                    min='3'
-                    max="11"
-                    onChange={handleMask_sizeValue}
-                  />
-                </div>
-              </div>
+            {['mean', 'median', 'mode'].includes(filterToApply) && (
+              <select
+                name="masks"
+                id="masks"
+                className="py-3 px-4 border border-solid border-rose-400 rounded-lg"
+                defaultValue={'none'}
+                onChange={e => setMaskSize(parseInt(e.target.value))}
+              >
+                <option value="3">3x3</option>
+                <option value="5">5x5</option>
+                <option value="9">9x9</option>
+                <option value="11">11x11</option>
+              </select>
             )}
-
 
             {filterToApply === 'prewitt_sobel' && (
               <div className="flex items-center gap-2">
@@ -353,7 +347,7 @@ function Editor() {
               type="submit"
               disabled={!firstFileUrl}
             >
-              Apply filter
+              Aplicar
             </button>
           </div>
         </form>
@@ -387,4 +381,3 @@ function Editor() {
 }
 
 export default Editor;
-  
