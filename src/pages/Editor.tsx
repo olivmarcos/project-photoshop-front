@@ -140,6 +140,11 @@ function Editor() {
     setScaleFactor(parseInt(selectedScale));
   }
 
+  useEffect(() => {
+    setAlteredFileName(null);
+    setAlteredFileUrl(null);
+  }, [scaleFactor]);
+
   const handleOnSubmitForm = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 

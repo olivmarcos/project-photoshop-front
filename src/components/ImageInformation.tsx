@@ -144,7 +144,7 @@ function ImageInformation({ children, context, ...props }: MyDivProps) {
 
       <Modal isOpen={isModalOpen} onClose={closeModal}>
         {histogramFileUrl && imageUrl && (
-          <div className="w-full h-full flex flex-col items-center gap-4">
+          <div className="w-full h-full flex flex-col items-center gap-8">
             <div className="flex gap-2 items-center justify-center">
               <div>
                 <ImageComponent src={imageUrl} alt={imageId}></ImageComponent>
