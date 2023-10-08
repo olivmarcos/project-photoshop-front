@@ -23,8 +23,8 @@ const applyFilter = async (
   fileName: string,
   secondFileName: string | null,
   gamma?: number,
-  aValue?: number | '',
-  bValue?: number | '',
+  aValue?: number | null,
+  bValue?: number | null,
   scaleFactor?: number,
   mergePercentage?: number,
   hiperboost?: boolean,
@@ -97,7 +97,8 @@ const equalizeImage = async (fileName: string,  from: string = 'uploaded_images'
       body: JSON.stringify(body)
     })
     const { data } = await response.json();
-    return `${BASE_URL}/images/equalized/${data.fileName}?_cache=${Date.now()}`
+    
+    return data.fileName
   } catch (error) {
     console.log(error)
   }

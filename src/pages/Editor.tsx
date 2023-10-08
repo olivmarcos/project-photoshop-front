@@ -16,17 +16,37 @@ function Editor() {
   const [alteredFileName, setAlteredFileName] = useState<string | null>(null);
   const [alteredFileUrl, setAlteredFileUrl] = useState<string | null>(null);
 
-  const [filterToApply, setFilterToApply] = useState<string>('default');
+  const [filterToApply, setFilterToApply] = useState<string>('none');
   const [scaleFactor, setScaleFactor] = useState<number>(2);
   const [gamma, setGamma] = useState<number>(1);
   const [mergePercentage, setMergePercentage] = useState<number>(0);
-  const [aValue, setAValue] = useState<number | ''>('');
-  const [bValue, setBValue] = useState<number | ''>('');
+  const [aValue, setAValue] = useState<number | null>(null);
+  const [bValue, setBValue] = useState<number | null>(null);
   const [hiperboost, setHiperboost] = useState<boolean>(false);
   const [sobel, setSobel] = useState<boolean>(false);
   const [maskSize, setMaskSize] = useState<number>(3);
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+  const shouldDisableApplyFilterButton = () => {
+    if (!firstFileUrl) {
+      return true;
+    }
+    
+    if (firstFileUrl && filterToApply === 'none') {
+      return true;
+    }
+
+    if (['compression', 'expansion'].includes(filterToApply) && (aValue === null || bValue === null)) {
+      return true;
+    }
+
+    if (filterToApply === 'add-two-images' && !secondFileUrl) {
+      return true;
+    }
+
+    return false;
+  }
 
   const resetForm = () => {
     setFirstFileName(null);
@@ -37,15 +57,16 @@ function Editor() {
     setAlteredFileUrl(null);
     setGamma(1);
     setMergePercentage(0);
-    setFilterToApply('default');
-    setAValue(0);
-    setBValue(0);
-    setScaleFactor(0);
+    setFilterToApply('none');
+    setAValue(null);
+    setBValue(null);
+    setScaleFactor(2);
     setHiperboost(false);
     setSobel(false);
     setMaskSize(3);
     clearInputFiles();
   };
+
 
   const clearInputFiles = () => {
     const fileInputs = document.querySelectorAll<HTMLInputElement>('input[type="file"]');
@@ -59,11 +80,6 @@ function Editor() {
     }
     setFilterToApply(filterToApply);
   };
-
-  useEffect(() => {
-    setAlteredFileName(null);
-    setAlteredFileUrl(null);
-  }, [filterToApply])
 
   const handleFirstFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files;
@@ -138,12 +154,7 @@ function Editor() {
       return;
     }
     setScaleFactor(parseInt(selectedScale));
-  }
-
-  useEffect(() => {
-    setAlteredFileName(null);
-    setAlteredFileUrl(null);
-  }, [scaleFactor]);
+  };
 
   const handleOnSubmitForm = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -189,6 +200,11 @@ function Editor() {
     setIsModalOpen(false);
   };
 
+  useEffect(() => {
+    setAlteredFileName(null);
+    setAlteredFileUrl(null);
+  }, [filterToApply, aValue, bValue, mergePercentage, sobel, hiperboost, scaleFactor, gamma, maskSize]);
+
   return (
     <div className="w-full h-full flex flex-col items-center gap-4">
       <div className="bg-rose-400 text-white flex items-center justify-between w-full h-16 px-6 rounded-md shadow-md">
@@ -211,7 +227,7 @@ function Editor() {
               onChange={handleOnChangeFilter}
               disabled={!firstFileUrl}
             >
-              <option value="default" disabled hidden>Filtros</option>
+              <option value="none" disabled hidden>Filtros</option>
               <option value="negative">Negativo</option>
               <option value="logarithm">Logaritmo</option>
               <option value="inverse-logarithm">Logaritmo inverso</option>
@@ -229,7 +245,7 @@ function Editor() {
               <option value="median">Mediana</option>
               <option value="mode">Moda</option>
               <option value="laplace">Laplace</option>
-              <option value="prewitt_sobel">Prewitt&Sobel</option>
+              <option value="prewitt_sobel">Prewitt</option>
             </select>
 
             {['mean', 'median', 'mode'].includes(filterToApply) && (
@@ -249,15 +265,15 @@ function Editor() {
 
             {filterToApply === 'prewitt_sobel' && (
               <div className="flex items-center gap-2">
-                <label className="font-bold drop-shadow-lg" htmlFor="sobel">Sobel?</label>
-                <input id="sobel" type="checkbox" className="accent-rose-400" onChange={e => setSobel(Boolean(e.target.value))} />
+                <label className="font-bold drop-shadow-lg" htmlFor="sobel">Adicionar sobel</label>
+                <input id="sobel" type="checkbox" className="accent-rose-400" onChange={e => setSobel(e.target.checked)} />
               </div>
             )}
 
             {filterToApply === 'laplace' && (
               <div className="flex items-center gap-2">
-                <label className="font-bold drop-shadow-lg" htmlFor="hiperBosst">HiperBoost</label>
-                <input id="hiperBosst" type="checkbox" className="accent-rose-400" onChange={e => setHiperboost(Boolean(e.target.value))} />
+                <label className="font-bold drop-shadow-lg" htmlFor="hiperBosst">Adicionar hiperboost</label>
+                <input id="hiperBosst" type="checkbox" className="accent-rose-400" onChange={e => setHiperboost(e.target.checked)} />
               </div>
             )}
 
@@ -273,7 +289,7 @@ function Editor() {
                     disabled={!firstFileUrl}
                     type="range"
                     step={0.01}
-                    min={0}
+                    min={0.01}
                     max={5}
                   />
                   <p className="font-bold">{gamma}</p>
@@ -322,9 +338,8 @@ function Editor() {
                     name="b"
                     id="b"
                     placeholder="B"
-                    step="0.1"
-                    min='0'
-                    max="10"
+                    min='-50'
+                    max="50"
                     onChange={handleBValue}
                   />
                 </div>
@@ -339,7 +354,7 @@ function Editor() {
                 defaultValue={'none'}
                 onChange={handleOnChangeScaleFactor}
               >
-                <option value="none" disabled hidden>Escalas</option>
+                <option value="2" disabled hidden>Escalas</option>
                 <option value="2">512x512</option>
                 <option value="4">1024x1024</option>
               </select>
@@ -348,9 +363,9 @@ function Editor() {
 
           <div className="w-full flex items-center justify-end">
             <button
-              className={`py-2 px-4 rounded-lg text-white ${firstFileUrl ? 'bg-rose-400' : 'bg-gray-400'}`}
+              className={`py-2 px-4 rounded-lg text-white ${shouldDisableApplyFilterButton() ? 'bg-gray-400' : 'bg-rose-400'}`}
               type="submit"
-              disabled={!firstFileUrl}
+              disabled={shouldDisableApplyFilterButton()}
             >
               Aplicar
             </button>
