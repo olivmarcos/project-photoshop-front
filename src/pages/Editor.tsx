@@ -1,3 +1,4 @@
+
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import ImageUploader from "../components/ImageUploader";
 import { applyFilter, uploadFile } from "../services/http";
@@ -23,6 +24,7 @@ function Editor() {
   const [bValue, setBValue] = useState<number | ''>('');
   const [hiperboost, setHiperboost] = useState<boolean>(false);
   const [sobel, setSobel] = useState<boolean>(false);
+  const [mask_size, setMask_size] = useState<number>(3);
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
@@ -41,6 +43,7 @@ function Editor() {
     setScaleFactor(0);
     setHiperboost(false);
     setSobel(false);
+    setMask_size(3);
     clearInputFiles();
   };
 
@@ -115,6 +118,14 @@ function Editor() {
     setAValue(parseFloat(inputedAValue));
   }
 
+  const handleMask_sizeValue = async (event: ChangeEvent<HTMLInputElement>) => {
+    const inputedMask_sizeValue = event.target.value;
+    if (!inputedMask_sizeValue) {
+      return;
+    }
+    setMask_size(parseInt(inputedMask_sizeValue));
+  }
+
   const handleBValue = async (event: ChangeEvent<HTMLInputElement>) => {
     const inputedBValue = event.target.value;
     if (!inputedBValue) {
@@ -148,7 +159,8 @@ function Editor() {
       scaleFactor,
       mergePercentage,
       hiperboost,
-      sobel
+      sobel,
+      mask_size
     );
 
     if (!filteredfileName) {
@@ -216,6 +228,25 @@ function Editor() {
               <option value="laplace">Laplace</option>
               <option value="prewitt_sobel">Prewitt&Sobel</option>
             </select>
+
+            {['mean'].includes(filterToApply) && (
+              <div>
+                <div className="flex flex-col gap-2">
+                  <input
+                    className="border border-solid border-black rounded-lg px-2"
+                    type="number"
+                    name="mask_size"
+                    id="mask_size"
+                    placeholder="Tamanho da mascara"
+                    step="2"
+                    min='3'
+                    max="11"
+                    onChange={handleMask_sizeValue}
+                  />
+                </div>
+              </div>
+            )}
+
 
             {filterToApply === 'prewitt_sobel' && (
               <div className="flex items-center gap-2">
@@ -356,3 +387,4 @@ function Editor() {
 }
 
 export default Editor;
+  
