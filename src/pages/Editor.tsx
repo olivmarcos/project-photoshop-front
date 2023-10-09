@@ -219,6 +219,7 @@ function Editor() {
       <div className="grid grid-cols-6 gap-6 h-5/6">
         <form action="" className="bg-white p-6 flex flex-col justify-between rounded-lg shadow-lg" onSubmit={handleOnSubmitForm}>
           <div className="flex flex-col gap-4 h-3/4">
+          <h1 className="font-bold">Filtros</h1>
             <select
               className="py-3 px-4 border border-solid border-rose-400 rounded-lg"
               name="filters"
@@ -227,7 +228,7 @@ function Editor() {
               onChange={handleOnChangeFilter}
               disabled={!firstFileUrl}
             >
-              <option value="none" disabled hidden>Filtros</option>
+              <option value="none" disabled hidden>Escolha</option>
               <option value="negative">Negativo</option>
               <option value="logarithm">Logaritmo</option>
               <option value="inverse-logarithm">Logaritmo inverso</option>
