@@ -110,9 +110,9 @@ function ImageInformation({ children, context, ...props }: MyDivProps) {
 
     context = 'equalize';
     location = getFileLocationByContext();
-    
+
     setEqualizedFileUrl(`${BASE_URL}/images/equalized/${equalizedImageName}?_cache=${Date.now()}`);
-    
+
     const equalizedImageHistogram = await generateHistogram(equalizedImageName, location);
 
     if (!equalizedImageHistogram) {
@@ -149,8 +149,8 @@ function ImageInformation({ children, context, ...props }: MyDivProps) {
 
       <Modal isOpen={isModalOpen} onClose={closeModal}>
         {histogramFileUrl && imageUrl && (
-          <div className="w-full h-full flex flex-col items-center my-8">
-            <div className="flex gap-2 items-center justify-center mb-8">
+          <div className={`w-full h-full flex flex-col items-center gap-6 ${equalizedFileUrl && equalizedFileHistogramUrl ? 'mt-36' : ''}`}>
+            <div className="flex gap-2 items-center justify-center">
               <div>
                 <ImageComponent src={imageUrl} alt={imageId}></ImageComponent>
               </div>
@@ -159,18 +159,21 @@ function ImageInformation({ children, context, ...props }: MyDivProps) {
               </div>
             </div>
 
-            <button className="px-3 border border-solid border-rose-400 text-rose-400 hover:bg-rose-400 hover:text-white"
+            <button className={`px-3 border border-solid border-rose-400 text-rose-400 hover:bg-rose-400 hover:text-white ${equalizedFileUrl && equalizedFileHistogramUrl ? 'invisible' : ''}`}
               onClick={handleEqualizeImage}>
               Equalizar imagem
             </button>
 
             {equalizedFileUrl && equalizedFileHistogramUrl && (
-              <div className="flex gap-2 items-center justify-center">
-                <div>
-                  <ImageComponent src={equalizedFileUrl} alt='equalized image'></ImageComponent>
-                </div>
-                <div>
-                  <ImageComponent src={equalizedFileHistogramUrl} alt={'equalized image histogram'}></ImageComponent>
+              <div>
+                <hr className="border border-solid border-gray-200" />
+                <div className="flex gap-2 items-center justify-center">
+                  <div>
+                    <ImageComponent src={equalizedFileUrl} alt='equalized image'></ImageComponent>
+                  </div>
+                  <div>
+                    <ImageComponent src={equalizedFileHistogramUrl} alt={'equalized image histogram'}></ImageComponent>
+                  </div>
                 </div>
               </div>
             )}
