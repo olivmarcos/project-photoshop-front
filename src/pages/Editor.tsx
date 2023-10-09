@@ -246,6 +246,8 @@ function Editor() {
               <option value="mode">Moda</option>
               <option value="laplace">Laplace</option>
               <option value="prewitt_sobel">Prewitt</option>
+              <option value="min">Min</option>
+              <option value="max">Max</option>
             </select>
 
             {['mean', 'median', 'mode'].includes(filterToApply) && (
