@@ -1,11 +1,9 @@
-const BASE_URL = 'http://127.0.0.1:5000/api/v1';
-
 const uploadFile = async (file: File) => {
   const formData = new FormData();
   formData.append('file', file, file.name);
 
   try {
-    const response = await fetch(`${BASE_URL}/images/upload`, {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/images/upload`, {
       method: 'POST',
       body: formData,
     });
@@ -46,7 +44,7 @@ const applyFilter = async (
   };
   
   try {
-    const response = await fetch(`${BASE_URL}/images/filter`, {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/images/filter`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -68,7 +66,7 @@ const generateHistogram = async (fileName: string, from: string = 'uploaded_imag
   }
 
   try {
-    const response = await fetch(`${BASE_URL}/images/histogram`, {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/images/histogram`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -76,7 +74,7 @@ const generateHistogram = async (fileName: string, from: string = 'uploaded_imag
       body: JSON.stringify(body)
     })
     const { data } = await response.json();
-    return `${BASE_URL}/images/histogram/${data.fileName}?_cache=${Date.now()}`
+    return `${import.meta.env.VITE_API_BASE_URL}/images/histogram/${data.fileName}?_cache=${Date.now()}`
   } catch (error) {
     console.log(error)
   }
@@ -89,7 +87,7 @@ const equalizeImage = async (fileName: string,  from: string = 'uploaded_images'
   }
 
   try {
-    const response = await fetch(`${BASE_URL}/images/equalize`, {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/images/equalize`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

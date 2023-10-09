@@ -3,8 +3,6 @@ import { equalizeImage, generateHistogram } from "../services/http";
 import { Image as ImageComponent } from "./Image";
 import Modal from "./Modal";
 
-const BASE_URL = 'http://127.0.0.1:5000/api/v1';
-
 interface MyDivProps extends HTMLAttributes<HTMLDivElement> {
   context?: string;
   children?: ReactNode;
@@ -111,7 +109,7 @@ function ImageInformation({ children, context, ...props }: MyDivProps) {
     context = 'equalize';
     location = getFileLocationByContext();
 
-    setEqualizedFileUrl(`${BASE_URL}/images/equalized/${equalizedImageName}?_cache=${Date.now()}`);
+    setEqualizedFileUrl(`${import.meta.env.VITE_API_BASE_URL}/images/equalized/${equalizedImageName}?_cache=${Date.now()}`);
 
     const equalizedImageHistogram = await generateHistogram(equalizedImageName, location);
 

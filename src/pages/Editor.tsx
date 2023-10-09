@@ -6,7 +6,6 @@ import { Image } from "../components/Image";
 import Modal from "../components/Modal";
 import ImageInformation from "../components/ImageInformation";
 
-const BASE_URL = 'http://127.0.0.1:5000/api/v1';
 
 function Editor() {
   const [firstFileName, setFirstFileName] = useState<string | null>(null);
@@ -106,7 +105,7 @@ function Editor() {
       return;
     }
     
-    setFirstFileUrl(`${BASE_URL}/images/uploaded/${firstFileName}`);
+    setFirstFileUrl(`${import.meta.env.VITE_API_BASE_URL}/images/uploaded/${firstFileName}`);
   }, [firstFileName]);
 
   const handleSecondFile = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -129,7 +128,7 @@ function Editor() {
     if (!secondFileName) {
       return;
     }
-    setSecondFileUrl(`${BASE_URL}/images/uploaded/${secondFileName}?_cache=${Date.now()}`);
+    setSecondFileUrl(`${import.meta.env.VITE_API_BASE_URL}/images/uploaded/${secondFileName}?_cache=${Date.now()}`);
   }, [secondFileName]);
 
   const handleAValue = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -189,7 +188,7 @@ function Editor() {
   }
 
   useEffect(() => {
-    setAlteredFileUrl(`${BASE_URL}/images/filtered/${alteredFileName}?_cache=${Date.now()}`)
+    setAlteredFileUrl(`${import.meta.env.VITE_API_BASE_URL}/images/filtered/${alteredFileName}?_cache=${Date.now()}`)
   }, [alteredFileName]);
 
   const openModal = () => {
